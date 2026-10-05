@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V6 - GitHub Pages + Supabase
+// Hoa Cỏ Lau V6.1 - GitHub Pages + Supabase + auto sync
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -230,6 +230,82 @@ async function loadPublicData({ silent = false } = {}) {
 
   updateSyncStatus("Đã kết nối Supabase — dữ liệu dùng chung trên mọi thiết bị", "online");
   return true;
+}
+
+
+// Đồng bộ nhanh riêng phần cài đặt website giữa nhiều thiết bị.
+// Realtime là đường nhanh; polling/focus/pageshow là cơ chế dự phòng để vẫn hoạt động
+// kể cả khi Realtime chưa được bật cho bảng site_settings trong Supabase.
+let settingsRefreshInFlight = false;
+let lastSettingsUpdatedAt = "";
+
+async function refreshSharedSettings({ silent = true } = {}) {
+  if (settingsRefreshInFlight) return false;
+  settingsRefreshInFlight = true;
+  try {
+    const { data, error } = await supabaseClient
+      .from("site_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return false;
+
+    const incoming = mapSettingsRow(data);
+    const incomingUpdatedAt = data.updated_at || "";
+    const changed = JSON.stringify(incoming) !== JSON.stringify(siteSettings);
+
+    if (changed) {
+      siteSettings = incoming;
+      applySiteSettings();
+      if (adminUnlocked) populateAdminSettings();
+      if (!silent) showToast("Đã nhận cài đặt mới từ Supabase");
+    }
+
+    lastSettingsUpdatedAt = incomingUpdatedAt;
+    return changed;
+  } catch (error) {
+    if (!silent) console.error("Không thể đồng bộ site_settings", error);
+    return false;
+  } finally {
+    settingsRefreshInFlight = false;
+  }
+}
+
+function startCrossDeviceSettingsSync() {
+  // Khi quay lại trang trên điện thoại, lấy dữ liệu mới ngay lập tức.
+  window.addEventListener("focus", () => refreshSharedSettings({ silent: true }));
+  window.addEventListener("pageshow", () => refreshSharedSettings({ silent: true }));
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshSharedSettings({ silent: true });
+  });
+
+  // Polling dự phòng: trang đang mở sẽ tự cập nhật tối đa khoảng 8 giây sau khi Admin lưu.
+  window.__hoaCoLauSettingsTimer = window.setInterval(() => {
+    if (!document.hidden) refreshSharedSettings({ silent: true });
+  }, 8000);
+
+  // Realtime: nếu bảng site_settings đã bật trong Supabase Realtime thì cập nhật gần như tức thì.
+  try {
+    window.__hoaCoLauSettingsChannel = supabaseClient
+      .channel("hoa-co-lau-site-settings")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "site_settings", filter: "id=eq.1" },
+        payload => {
+          const row = payload?.new;
+          if (!row || Number(row.id) !== 1) return;
+          siteSettings = mapSettingsRow(row);
+          lastSettingsUpdatedAt = row.updated_at || lastSettingsUpdatedAt;
+          applySiteSettings();
+          if (adminUnlocked) populateAdminSettings();
+        }
+      )
+      .subscribe();
+  } catch (error) {
+    console.warn("Realtime chưa sẵn sàng, sẽ dùng polling dự phòng.", error);
+  }
 }
 
 function applySiteSettings() {
@@ -664,9 +740,10 @@ document.getElementById("adminSaveSettings")?.addEventListener("click", async ()
     if (!data) throw new Error("Không tìm thấy dòng site_settings có id = 1. Hãy chạy lại phần INSERT site_settings trong SQL.");
 
     siteSettings = mapSettingsRow(data);
+    lastSettingsUpdatedAt = data.updated_at || lastSettingsUpdatedAt;
     applySiteSettings();
     populateAdminSettings();
-    updateSyncStatus("Đã lưu Supabase — điện thoại và máy tính sẽ dùng cùng thông tin", "online");
+    updateSyncStatus("Đã lưu Supabase — thiết bị khác sẽ tự cập nhật trong vài giây", "online");
     showToast("Đã lưu và đồng bộ cài đặt website");
   } catch (error) {
     console.error(error);
@@ -987,5 +1064,7 @@ applySiteSettings();
 renderCategoryUI();
 renderProducts();
 renderCart();
-loadPublicData({ silent: true });
+loadPublicData({ silent: true }).finally(() => {
+  startCrossDeviceSettingsSync();
+});
 checkAdminHash();
