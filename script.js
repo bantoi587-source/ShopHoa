@@ -21,8 +21,11 @@ function storageSet(key, value) {
 const defaultSiteSettings = {
   phone: "0353 72 42 32",
   zalo: "",
+  zaloName: "Zalo Hoa Cỏ Lau",
   facebook: "",
+  facebookName: "Facebook Hoa Cỏ Lau",
   messenger: "",
+  messengerName: "Messenger Hoa Cỏ Lau",
   banner: "assets/banner-hoa-co-lau.webp"
 };
 const settingsStorageKey = "hoaCoLauSiteSettings";
@@ -72,22 +75,25 @@ function applySiteSettings() {
   if (banner) banner.src = siteSettings.banner || defaultSiteSettings.banner;
 
   const socialConfigs = [
-    { selector: "[data-zalo-link]", row: "contactZaloRow", url: effectiveZaloUrl(), label: "Zalo" },
-    { selector: "[data-facebook-link]", row: "contactFacebookRow", url: safeExternalUrl(siteSettings.facebook), label: "Facebook" },
-    { selector: "[data-messenger-link]", row: "contactMessengerRow", url: safeExternalUrl(siteSettings.messenger), label: "Messenger" }
+    { selector: "[data-zalo-link]", textSelector: "[data-zalo-text]", row: "contactZaloRow", url: effectiveZaloUrl(), label: "Zalo", display: siteSettings.zaloName || defaultSiteSettings.zaloName },
+    { selector: "[data-facebook-link]", textSelector: "[data-facebook-text]", row: "contactFacebookRow", url: safeExternalUrl(siteSettings.facebook), label: "Facebook", display: siteSettings.facebookName || defaultSiteSettings.facebookName },
+    { selector: "[data-messenger-link]", textSelector: "[data-messenger-text]", row: "contactMessengerRow", url: safeExternalUrl(siteSettings.messenger), label: "Messenger", display: siteSettings.messengerName || defaultSiteSettings.messengerName }
   ];
-  socialConfigs.forEach(({ selector, row, url, label }) => {
+  socialConfigs.forEach(({ selector, textSelector, row, url, label, display }) => {
     document.querySelectorAll(selector).forEach(el => {
       el.hidden = false;
+      el.setAttribute("aria-label", display);
       if (url) {
         el.href = url;
         el.dataset.unconfigured = "0";
+        el.title = display;
       } else {
         el.href = "#admin";
         el.dataset.unconfigured = "1";
         el.title = `${label} chưa được cấu hình - bấm để vào Admin`;
       }
     });
+    document.querySelectorAll(textSelector).forEach(el => { el.textContent = display; });
     const rowEl = document.getElementById(row);
     if (rowEl) {
       rowEl.hidden = false;
@@ -123,6 +129,41 @@ function resizeImageFile(file, maxSize, quality, done) {
   reader.readAsDataURL(file);
 }
 
+const defaultCategories = [
+  { id: "sinh-nhat", name: "Hoa sinh nhật", shortName: "Sinh nhật", icon: "🎂", desc: "Tươi trẻ • Ấm áp" },
+  { id: "khai-truong", name: "Hoa khai trương", shortName: "Khai trương", icon: "🎉", desc: "Nổi bật • Sang trọng" },
+  { id: "tinh-yeu", name: "Hoa tình yêu", shortName: "Tình yêu", icon: "💐", desc: "Lãng mạn • Tinh tế" },
+  { id: "cuoi-hoi", name: "Hoa & tráp cưới", shortName: "Cưới hỏi", icon: "💍", desc: "Đồng bộ concept" }
+];
+const categoryStorageKey = "hoaCoLauCategories";
+let categories = loadCategories();
+
+function loadCategories() {
+  try {
+    const stored = JSON.parse(storageGet(categoryStorageKey) || "null");
+    return Array.isArray(stored) && stored.length ? stored : defaultCategories.map(c => ({ ...c }));
+  } catch {
+    return defaultCategories.map(c => ({ ...c }));
+  }
+}
+
+function saveCategories() {
+  return storageSet(categoryStorageKey, JSON.stringify(categories));
+}
+
+function slugifyCategory(value = "") {
+  const slug = String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug || `danh-muc-${Date.now()}`;
+}
+
+function categoryById(id) {
+  return categories.find(c => c.id === id);
+}
+
+function getCategoryName(id, fallback = "") {
+  return categoryById(id)?.name || fallback || "Danh mục khác";
+}
+
 const defaultProducts = [
   { id: 1, name: "Nắng Dịu Dàng", category: "sinh-nhat", categoryName: "Hoa sinh nhật", price: 350000, desc: "Hướng dương phối lá xanh, phong cách tươi sáng.", palette: "sun", badge: "Bán chạy", image: "" },
   { id: 2, name: "Hồng Kem Bình Yên", category: "tinh-yeu", categoryName: "Hoa tình yêu", price: 390000, desc: "Bó hồng tông kem hồng nhẹ nhàng, tinh tế.", palette: "rose", badge: "Yêu thích", image: "" },
@@ -154,7 +195,7 @@ const productGrid = document.getElementById("productGrid");
 const searchInput = document.getElementById("searchInput");
 const sortSelect = document.getElementById("sortSelect");
 const filterRow = document.getElementById("filterRow");
-const categoryCards = document.querySelectorAll(".category-card");
+const categoryGrid = document.getElementById("categoryGrid");
 const cartButton = document.getElementById("cartButton");
 const cartDrawer = document.getElementById("cartDrawer");
 const cartClose = document.getElementById("cartClose");
@@ -190,6 +231,29 @@ function escapeHtml(value = "") {
   return String(value).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
 }
 
+function renderCategoryUI() {
+  if (categoryGrid) {
+    categoryGrid.innerHTML = categories.map(c => `
+      <button class="category-card" data-filter="${escapeHtml(c.id)}">
+        <span class="category-icon">${escapeHtml(c.icon || "🌸")}</span>
+        <strong>${escapeHtml(c.name)}</strong>
+        <small>${escapeHtml(c.desc || "Xem sản phẩm")}</small>
+      </button>`).join("");
+  }
+  if (filterRow) {
+    filterRow.innerHTML = `<button class="filter-chip ${currentFilter === "all" ? "active" : ""}" data-filter="all">Tất cả</button>` +
+      categories.map(c => `<button class="filter-chip ${currentFilter === c.id ? "active" : ""}" data-filter="${escapeHtml(c.id)}">${escapeHtml(c.shortName || c.name)}</button>`).join("");
+  }
+  renderAdminCategoryOptions();
+}
+
+function renderAdminCategoryOptions() {
+  if (!adminCategory) return;
+  const selected = adminCategory.value;
+  adminCategory.innerHTML = categories.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join("");
+  if (categories.some(c => c.id === selected)) adminCategory.value = selected;
+}
+
 function renderProducts() {
   const term = searchInput.value.trim().toLowerCase();
   let list = products.filter(p => (currentFilter === "all" || p.category === currentFilter) && p.name.toLowerCase().includes(term));
@@ -202,7 +266,7 @@ function renderProducts() {
         ${productVisual(p)}
       </div>
       <div class="product-info">
-        <div class="product-category">${escapeHtml(p.categoryName || "")}</div>
+        <div class="product-category">${escapeHtml(getCategoryName(p.category, p.categoryName || ""))}</div>
         <h3 class="product-name">${escapeHtml(p.name)}</h3>
         <div class="product-desc">${escapeHtml(p.desc || "")}</div>
         <div class="product-foot">
@@ -220,7 +284,12 @@ function setFilter(filter) {
   renderProducts();
 }
 filterRow.addEventListener("click", e => { const btn = e.target.closest("[data-filter]"); if (btn) setFilter(btn.dataset.filter); });
-categoryCards.forEach(card => card.addEventListener("click", () => { setFilter(card.dataset.filter); document.getElementById("products").scrollIntoView({ behavior: "smooth" }); }));
+if (categoryGrid) categoryGrid.addEventListener("click", e => {
+  const card = e.target.closest("[data-filter]");
+  if (!card) return;
+  setFilter(card.dataset.filter);
+  document.getElementById("products").scrollIntoView({ behavior: "smooth" });
+});
 searchInput.addEventListener("input", renderProducts);
 sortSelect.addEventListener("change", renderProducts);
 
@@ -272,22 +341,27 @@ const adminImagePreview = document.getElementById("adminImagePreview");
 const adminFormTitle = document.getElementById("adminFormTitle");
 const adminPhone = document.getElementById("adminPhone");
 const adminZalo = document.getElementById("adminZalo");
+const adminZaloName = document.getElementById("adminZaloName");
 const adminFacebook = document.getElementById("adminFacebook");
+const adminFacebookName = document.getElementById("adminFacebookName");
 const adminMessenger = document.getElementById("adminMessenger");
+const adminMessengerName = document.getElementById("adminMessengerName");
 const adminBanner = document.getElementById("adminBanner");
 const adminBannerPreview = document.getElementById("adminBannerPreview");
+const adminCategoryName = document.getElementById("adminCategoryName");
+const adminCategoryIcon = document.getElementById("adminCategoryIcon");
+const adminCategoryDesc = document.getElementById("adminCategoryDesc");
+const adminCategoryList = document.getElementById("adminCategoryList");
 let pendingImage = "";
 let pendingBanner = "";
 let adminUnlocked = false;
-
-const categoryNames = { "sinh-nhat":"Hoa sinh nhật", "khai-truong":"Hoa khai trương", "tinh-yeu":"Hoa tình yêu", "cuoi-hoi":"Hoa & tráp cưới" };
 
 function openAdmin() {
   adminShell.hidden = false;
   document.body.style.overflow = "hidden";
   adminLogin.hidden = adminUnlocked;
   adminApp.hidden = !adminUnlocked;
-  if (adminUnlocked) { renderAdminProducts(); populateAdminSettings(); }
+  if (adminUnlocked) { renderAdminProducts(); populateAdminSettings(); renderAdminCategories(); renderAdminCategoryOptions(); }
 }
 function closeAdmin() {
   adminShell.hidden = true;
@@ -311,7 +385,7 @@ checkAdminHash();
 
 document.getElementById("adminLoginBtn").addEventListener("click", () => {
   if (adminPassword.value === "hoacolau123") {
-    adminUnlocked = true; adminLogin.hidden = true; adminApp.hidden = false; renderAdminProducts(); populateAdminSettings(); adminPassword.value = "";
+    adminUnlocked = true; adminLogin.hidden = true; adminApp.hidden = false; renderAdminProducts(); populateAdminSettings(); renderAdminCategories(); renderAdminCategoryOptions(); adminPassword.value = "";
   } else { alert("Mật khẩu chưa đúng."); }
 });
 adminPassword.addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("adminLoginBtn").click(); });
@@ -339,8 +413,11 @@ if (adminGoSettings) adminGoSettings.addEventListener("click", () => {
 function populateAdminSettings() {
   adminPhone.value = siteSettings.phone || "";
   adminZalo.value = siteSettings.zalo || "";
+  adminZaloName.value = siteSettings.zaloName || defaultSiteSettings.zaloName;
   adminFacebook.value = siteSettings.facebook || "";
+  adminFacebookName.value = siteSettings.facebookName || defaultSiteSettings.facebookName;
   adminMessenger.value = siteSettings.messenger || "";
+  adminMessengerName.value = siteSettings.messengerName || defaultSiteSettings.messengerName;
   pendingBanner = siteSettings.banner || defaultSiteSettings.banner;
   adminBanner.value = "";
   adminBannerPreview.innerHTML = `<img src="${pendingBanner}" alt="Banner hiện tại">`;
@@ -361,8 +438,11 @@ document.getElementById("adminSaveSettings").addEventListener("click", () => {
   siteSettings = {
     phone,
     zalo: adminZalo.value.trim(),
+    zaloName: adminZaloName.value.trim() || defaultSiteSettings.zaloName,
     facebook: adminFacebook.value.trim(),
+    facebookName: adminFacebookName.value.trim() || defaultSiteSettings.facebookName,
     messenger: adminMessenger.value.trim(),
+    messengerName: adminMessengerName.value.trim() || defaultSiteSettings.messengerName,
     banner: pendingBanner || siteSettings.banner || defaultSiteSettings.banner
   };
   const persisted = saveSiteSettings();
@@ -381,9 +461,65 @@ document.getElementById("adminResetSettings").addEventListener("click", () => {
   showToast("Đã khôi phục cài đặt");
 });
 
+function renderAdminCategories() {
+  if (!adminCategoryList) return;
+  adminCategoryList.innerHTML = categories.map(c => {
+    const count = products.filter(p => p.category === c.id).length;
+    return `<div class="admin-category-row">
+      <div class="admin-category-symbol">${escapeHtml(c.icon || "🌸")}</div>
+      <div><strong>${escapeHtml(c.name)}</strong><small>${count} sản phẩm • ${escapeHtml(c.id)}</small></div>
+      <button type="button" class="admin-category-delete" data-delete-category="${escapeHtml(c.id)}" ${count ? 'disabled title="Hãy chuyển sản phẩm sang danh mục khác trước"' : ""}>Xóa</button>
+    </div>`;
+  }).join("");
+}
+
+function addAdminCategory() {
+  const name = adminCategoryName.value.trim();
+  if (!name) { alert("Bạn chưa nhập tên danh mục."); adminCategoryName.focus(); return; }
+  const id = slugifyCategory(name);
+  if (categories.some(c => c.id === id || c.name.toLowerCase() === name.toLowerCase())) { alert("Danh mục này đã tồn tại."); return; }
+  categories.push({
+    id,
+    name,
+    shortName: name.replace(/^Hoa\s+/i, ""),
+    icon: adminCategoryIcon.value.trim() || "🌸",
+    desc: adminCategoryDesc.value.trim() || "Mẫu hoa theo yêu cầu"
+  });
+  const persisted = saveCategories();
+  currentFilter = "all";
+  renderCategoryUI();
+  renderAdminCategories();
+  adminCategoryName.value = ""; adminCategoryIcon.value = ""; adminCategoryDesc.value = "";
+  showToast("Đã thêm danh mục mới");
+  if (!persisted) alert("Trình duyệt đang chặn lưu cục bộ. Danh mục chỉ tồn tại trong phiên hiện tại.");
+}
+
+function deleteAdminCategory(id) {
+  const category = categoryById(id);
+  if (!category) return;
+  const count = products.filter(p => p.category === id).length;
+  if (count) { alert(`Danh mục "${category.name}" đang có ${count} sản phẩm. Hãy chuyển các sản phẩm sang danh mục khác trước khi xóa.`); return; }
+  if (!confirm(`Xóa danh mục "${category.name}"?`)) return;
+  categories = categories.filter(c => c.id !== id);
+  saveCategories();
+  if (!categories.length) categories = defaultCategories.map(c => ({ ...c }));
+  if (currentFilter === id) currentFilter = "all";
+  renderCategoryUI();
+  renderAdminCategories();
+  clearAdminForm();
+  showToast("Đã xóa danh mục");
+}
+
+document.getElementById("adminAddCategory").addEventListener("click", addAdminCategory);
+adminCategoryName.addEventListener("keydown", e => { if (e.key === "Enter") addAdminCategory(); });
+adminCategoryList.addEventListener("click", e => {
+  const btn = e.target.closest("[data-delete-category]");
+  if (btn && !btn.disabled) deleteAdminCategory(btn.dataset.deleteCategory);
+});
+
 document.getElementById("adminClearForm").addEventListener("click", clearAdminForm);
 function clearAdminForm() {
-  adminProductId.value = ""; adminName.value = ""; adminCategory.value = "sinh-nhat"; adminPrice.value = ""; adminDesc.value = ""; adminBadge.value = ""; adminImage.value = ""; pendingImage = "";
+  adminProductId.value = ""; adminName.value = ""; renderAdminCategoryOptions(); if (categories[0]) adminCategory.value = categories[0].id; adminPrice.value = ""; adminDesc.value = ""; adminBadge.value = ""; adminImage.value = ""; pendingImage = "";
   adminImagePreview.innerHTML = "<span>Chưa chọn ảnh</span>"; adminFormTitle.textContent = "Thêm sản phẩm mới";
 }
 
@@ -401,7 +537,7 @@ function renderAdminProducts() {
   adminProductList.innerHTML = products.map(p => `
     <div class="admin-product-row">
       <div class="admin-thumb">${p.image ? `<img src="${p.image}" alt="">` : `<span>💐</span>`}</div>
-      <div><h4>${escapeHtml(p.name)}</h4><p>${escapeHtml(p.categoryName || "")} • ${escapeHtml(p.badge || "Không nhãn")}</p><strong>${money.format(Number(p.price) || 0)}</strong></div>
+      <div><h4>${escapeHtml(p.name)}</h4><p>${escapeHtml(getCategoryName(p.category, p.categoryName || ""))} • ${escapeHtml(p.badge || "Không nhãn")}</p><strong>${money.format(Number(p.price) || 0)}</strong></div>
       <div class="admin-row-actions"><button data-edit-product="${p.id}">Sửa</button><button class="danger" data-delete-product="${p.id}">Xóa</button></div>
     </div>`).join("");
   document.querySelectorAll("[data-edit-product]").forEach(btn => btn.addEventListener("click", () => editAdminProduct(Number(btn.dataset.editProduct))));
@@ -416,7 +552,7 @@ function editAdminProduct(id) {
 function deleteAdminProduct(id) {
   const p = products.find(x => x.id === id); if (!p) return;
   if (!confirm(`Xóa sản phẩm \"${p.name}\"?`)) return;
-  products = products.filter(x => x.id !== id); saveProducts(); cart = cart.filter(x => x.id !== id); saveCart(); renderProducts(); renderAdminProducts(); clearAdminForm();
+  products = products.filter(x => x.id !== id); saveProducts(); cart = cart.filter(x => x.id !== id); saveCart(); renderProducts(); renderAdminProducts(); renderAdminCategories(); clearAdminForm();
 }
 
 document.getElementById("adminSaveProduct").addEventListener("click", () => {
@@ -426,14 +562,15 @@ document.getElementById("adminSaveProduct").addEventListener("click", () => {
   const id = Number(adminProductId.value);
   if (id) {
     const p = products.find(x => x.id === id); if (!p) return;
-    p.name = name; p.category = adminCategory.value; p.categoryName = categoryNames[adminCategory.value]; p.price = price; p.desc = adminDesc.value.trim(); p.badge = adminBadge.value.trim(); p.image = pendingImage || p.image || "";
+    p.name = name; p.category = adminCategory.value; p.categoryName = getCategoryName(adminCategory.value); p.price = price; p.desc = adminDesc.value.trim(); p.badge = adminBadge.value.trim(); p.image = pendingImage || p.image || "";
   } else {
     const newId = products.length ? Math.max(...products.map(p => Number(p.id) || 0)) + 1 : 1;
-    products.unshift({ id:newId, name, category:adminCategory.value, categoryName:categoryNames[adminCategory.value], price, desc:adminDesc.value.trim(), palette:"mix", badge:adminBadge.value.trim(), image:pendingImage || "" });
+    products.unshift({ id:newId, name, category:adminCategory.value, categoryName:getCategoryName(adminCategory.value), price, desc:adminDesc.value.trim(), palette:"mix", badge:adminBadge.value.trim(), image:pendingImage || "" });
   }
   const persisted = saveProducts();
   renderProducts();
   renderAdminProducts();
+  renderAdminCategories();
   clearAdminForm();
   if (persisted) {
     showToast("Đã lưu sản phẩm");
@@ -445,9 +582,10 @@ document.getElementById("adminSaveProduct").addEventListener("click", () => {
 
 document.getElementById("adminResetSamples").addEventListener("click", () => {
   if (!confirm("Khôi phục toàn bộ sản phẩm mẫu? Các chỉnh sửa hiện tại sẽ bị mất.")) return;
-  products = defaultProducts.map(p => ({ ...p })); saveProducts(); renderProducts(); renderAdminProducts(); clearAdminForm();
+  products = defaultProducts.map(p => ({ ...p })); saveProducts(); renderProducts(); renderAdminProducts(); renderAdminCategories(); clearAdminForm();
 });
 
 applySiteSettings();
+renderCategoryUI();
 renderProducts();
 renderCart();

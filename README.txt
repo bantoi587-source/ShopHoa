@@ -22,3 +22,13 @@ Nút liên hệ nhanh:
 
 LƯU Ý:
 Đây là bản website HTML/CSS/JavaScript chạy cục bộ. Dữ liệu Admin được lưu bằng localStorage của trình duyệt trên máy đang dùng. Khi đưa website lên hosting thật và cần nhiều thiết bị cùng quản trị, nên chuyển sang database + đăng nhập Admin thật.
+
+
+BẢN V3:
+- Admin có thể thêm/xóa danh mục mới.
+- Danh mục mới tự xuất hiện ở trang chủ, bộ lọc và form sản phẩm.
+- Admin có thể đổi tên hiển thị Zalo, Facebook, Messenger.
+- Nút liên hệ nổi dùng tên hiển thị đã cấu hình.
+
+
+V4: Đã tối ưu giao diện cho điện thoại và đổi cụm liên hệ nổi thành icon-only (Zalo/Facebook/Messenger/Gọi điện).

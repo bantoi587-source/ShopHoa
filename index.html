@@ -51,7 +51,7 @@
       <div class="container hero-copy-grid">
         <div>
           <p class="eyebrow">Tiệm Hoa Cỏ Lau</p>
-          <h1>Trao hoa đẹp, gửi trọn tình cảm.</h1>
+          <h1>Trao hoa đẹp, gửi trọn yêu thương.</h1>
           <p class="lead">Hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và tráp cưới hỏi được thiết kế chỉn chu theo từng dịp.</p>
           <div class="hero-actions">
             <a class="btn primary" href="#products">Xem mẫu hoa</a>
@@ -75,28 +75,7 @@
           </div>
           <p>Chọn nhanh mẫu hoa phù hợp với dịp bạn đang cần.</p>
         </div>
-        <div class="category-grid">
-          <button class="category-card" data-filter="sinh-nhat">
-            <span class="category-icon">🎂</span>
-            <strong>Hoa sinh nhật</strong>
-            <small>Tươi trẻ • Ấm áp</small>
-          </button>
-          <button class="category-card" data-filter="khai-truong">
-            <span class="category-icon">🎉</span>
-            <strong>Hoa khai trương</strong>
-            <small>Nổi bật • Sang trọng</small>
-          </button>
-          <button class="category-card" data-filter="tinh-yeu">
-            <span class="category-icon">💐</span>
-            <strong>Hoa tình yêu</strong>
-            <small>Lãng mạn • Tinh tế</small>
-          </button>
-          <button class="category-card" data-filter="cuoi-hoi">
-            <span class="category-icon">💍</span>
-            <strong>Hoa & tráp cưới</strong>
-            <small>Đồng bộ concept</small>
-          </button>
-        </div>
+        <div class="category-grid" id="categoryGrid"></div>
       </div>
     </section>
 
@@ -120,13 +99,7 @@
           </div>
         </div>
 
-        <div class="filter-row" id="filterRow">
-          <button class="filter-chip active" data-filter="all">Tất cả</button>
-          <button class="filter-chip" data-filter="sinh-nhat">Sinh nhật</button>
-          <button class="filter-chip" data-filter="khai-truong">Khai trương</button>
-          <button class="filter-chip" data-filter="tinh-yeu">Tình yêu</button>
-          <button class="filter-chip" data-filter="cuoi-hoi">Cưới hỏi</button>
-        </div>
+        <div class="filter-row" id="filterRow"></div>
 
         <div class="product-grid" id="productGrid"></div>
       </div>
@@ -179,9 +152,9 @@
         <div class="contact-card">
           <div><span>📍</span><p><small>Địa chỉ</small><strong>Giồng Tre, An Ngãi Trung, Vĩnh Long</strong></p></div>
           <div><span>☎️</span><p><small>Hotline</small><a href="tel:0353724232" data-phone-link><span data-phone-text>0353 72 42 32</span></a></p></div>
-          <div id="contactZaloRow"><span class="social-badge zalo-badge">Z</span><p><small>Zalo</small><a href="#" data-zalo-link target="_blank" rel="noopener noreferrer">Nhắn Zalo</a></p></div>
-          <div id="contactFacebookRow"><span class="social-badge facebook-badge">f</span><p><small>Facebook</small><a href="#" data-facebook-link target="_blank" rel="noopener noreferrer">Mở Facebook</a></p></div>
-          <div id="contactMessengerRow"><span class="social-badge messenger-badge">M</span><p><small>Messenger</small><a href="#" data-messenger-link target="_blank" rel="noopener noreferrer">Nhắn Messenger</a></p></div>
+          <div id="contactZaloRow"><span class="social-badge zalo-badge">Z</span><p><small>Zalo</small><a href="#" data-zalo-link target="_blank" rel="noopener noreferrer"><span data-zalo-text>Nhắn Zalo</span></a></p></div>
+          <div id="contactFacebookRow"><span class="social-badge facebook-badge">f</span><p><small>Facebook</small><a href="#" data-facebook-link target="_blank" rel="noopener noreferrer"><span data-facebook-text>Mở Facebook</span></a></p></div>
+          <div id="contactMessengerRow"><span class="social-badge messenger-badge">M</span><p><small>Messenger</small><a href="#" data-messenger-link target="_blank" rel="noopener noreferrer"><span data-messenger-text>Nhắn Messenger</span></a></p></div>
         </div>
       </div>
     </section>
@@ -198,7 +171,6 @@
         <a href="#wedding">Cưới hỏi</a>
         <a href="#contact">Liên hệ</a>
         <a href="#admin" data-admin-open>Quản trị</a>
-        <a href="#admin" data-admin-open>Quản trị</a>
       </div>
       <p>© 2026 Hoa Cỏ Lau. Website mẫu.</p>
     </div>
@@ -206,10 +178,20 @@
 
   <button class="floating-admin" id="adminOpenBtn" type="button">⚙ Admin</button>
   <div class="floating-contact-dock" aria-label="Liên hệ nhanh">
-    <a class="floating-contact floating-zalo" href="#" data-zalo-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Zalo"><span>Zalo</span></a>
-    <a class="floating-contact floating-facebook" href="#" data-facebook-link target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook"><span>f</span></a>
-    <a class="floating-contact floating-messenger" href="#" data-messenger-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Messenger"><span>MSG</span></a>
-    <a class="floating-contact floating-call" href="tel:0353724232" data-phone-link aria-label="Gọi Hoa Cỏ Lau"><span>☎</span></a>
+    <a class="floating-contact floating-zalo" href="#" data-zalo-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Zalo">
+      <span class="floating-icon floating-icon-zalo" aria-hidden="true">Z</span>
+    </a>
+    <a class="floating-contact floating-facebook" href="#" data-facebook-link target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook">
+      <span class="floating-icon floating-icon-facebook" aria-hidden="true">f</span>
+    </a>
+    <a class="floating-contact floating-messenger" href="#" data-messenger-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Messenger">
+      <svg class="floating-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 3C6.9 3 3 6.7 3 11.4c0 2.7 1.3 5.1 3.5 6.7V21l2.7-1.5c.9.2 1.8.3 2.8.3 5.1 0 9-3.7 9-8.4S17.1 3 12 3Zm1 11.1-2.3-2.5-4.5 2.5 4.9-5.2 2.3 2.5 4.4-2.5-4.8 5.2Z"/>
+      </svg>
+    </a>
+    <a class="floating-contact floating-call" href="tel:0353724232" data-phone-link aria-label="Gọi Hoa Cỏ Lau">
+      <span class="floating-icon floating-icon-call" aria-hidden="true">☎</span>
+    </a>
   </div>
 
   <div class="overlay" id="overlay"></div>
@@ -255,7 +237,7 @@
       <header class="admin-topbar">
         <div>
           <small>TIỆM HOA CỎ LAU</small>
-          <h2>Quản lý website & sản phẩm <span class="admin-version">V2</span></h2>
+          <h2>Quản lý website & sản phẩm <span class="admin-version">V4</span></h2>
         </div>
         <div class="admin-top-actions">
           <button class="admin-secondary" id="adminGoSettings">Cài đặt website</button>
@@ -280,12 +262,18 @@
 
             <label>Link Zalo</label>
             <input id="adminZalo" type="text" placeholder="https://zalo.me/0353724232" />
+            <label>Tên hiển thị Zalo</label>
+            <input id="adminZaloName" type="text" placeholder="Ví dụ: Zalo Hoa Cỏ Lau" />
 
             <label>Link Facebook</label>
             <input id="adminFacebook" type="text" placeholder="https://facebook.com/ten-trang" />
+            <label>Tên hiển thị Facebook</label>
+            <input id="adminFacebookName" type="text" placeholder="Ví dụ: Facebook Hoa Cỏ Lau" />
 
             <label>Link Messenger</label>
             <input id="adminMessenger" type="text" placeholder="https://m.me/ten-trang" />
+            <label>Tên hiển thị Messenger</label>
+            <input id="adminMessengerName" type="text" placeholder="Ví dụ: Nhắn Hoa Cỏ Lau" />
 
             <label>Banner trang chủ</label>
             <input id="adminBanner" type="file" accept="image/*" />
@@ -296,6 +284,33 @@
 
             <button class="btn primary full" id="adminSaveSettings">Lưu cài đặt website</button>
             <button class="admin-outline-btn full" id="adminResetSettings">Khôi phục cài đặt mặc định</button>
+          </section>
+
+          <section class="admin-category-card" id="adminCategoryCard">
+            <div class="admin-form-title">
+              <div>
+                <small>DANH MỤC</small>
+                <h3>Quản lý danh mục</h3>
+                <p class="admin-section-note">Thêm danh mục mới để dùng cho sản phẩm và bộ lọc ngoài trang chủ.</p>
+              </div>
+            </div>
+
+            <label>Tên danh mục mới</label>
+            <input id="adminCategoryName" type="text" placeholder="Ví dụ: Hoa chia buồn" />
+
+            <div class="admin-two-cols">
+              <div>
+                <label>Biểu tượng</label>
+                <input id="adminCategoryIcon" type="text" maxlength="8" placeholder="Ví dụ: 🌸" />
+              </div>
+              <div>
+                <label>Mô tả ngắn</label>
+                <input id="adminCategoryDesc" type="text" placeholder="Ví dụ: Trang trọng • Tinh tế" />
+              </div>
+            </div>
+
+            <button class="btn primary full" id="adminAddCategory" type="button">+ Thêm danh mục</button>
+            <div class="admin-category-list" id="adminCategoryList"></div>
           </section>
 
           <aside class="admin-form-card">
@@ -314,12 +329,7 @@
           <div class="admin-two-cols">
             <div>
               <label>Danh mục</label>
-              <select id="adminCategory">
-                <option value="sinh-nhat">Hoa sinh nhật</option>
-                <option value="khai-truong">Hoa khai trương</option>
-                <option value="tinh-yeu">Hoa tình yêu</option>
-                <option value="cuoi-hoi">Hoa & tráp cưới</option>
-              </select>
+              <select id="adminCategory"></select>
             </div>
             <div>
               <label>Giá bán (VNĐ)</label>
