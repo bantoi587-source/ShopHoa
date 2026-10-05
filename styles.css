@@ -572,3 +572,31 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   .product-info { padding: 14px 15px 16px; }
   .contact-card { padding: 10px 14px; }
 }
+
+/* V5 - trạng thái đồng bộ dữ liệu giữa các thiết bị */
+.admin-sync-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+.admin-sync-status[data-state="online"] {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+.admin-sync-status[data-state="offline"] {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+.admin-sync-status[data-state="local"] {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}

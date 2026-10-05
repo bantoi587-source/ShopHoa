@@ -1,0 +1,23 @@
+HOA CO LAU - ADMIN V5 - DONG BO MAY TINH / DIEN THOAI
+
+Vì bản cũ mở index.html trực tiếp nên localStorage chỉ tồn tại trên từng trình duyệt.
+Máy tính lưu một bản, điện thoại có một bản riêng, vì vậy điện thoại không thấy dữ liệu Admin vừa sửa trên máy tính.
+
+Bản V5 có server nhỏ để lưu thông tin liên hệ dùng chung.
+
+CACH CHAY:
+1. Cài Node.js LTS nếu máy chưa có.
+2. Double-click START-WEB.bat.
+3. Trình duyệt máy tính mở http://localhost:3000.
+4. Cửa sổ đen sẽ hiện thêm địa chỉ dùng cho điện thoại, ví dụ:
+   http://192.168.1.10:3000
+5. Điện thoại và máy tính phải cùng Wi-Fi.
+6. Mở địa chỉ đó trên điện thoại.
+7. Vào Admin trên máy tính hoặc điện thoại, sửa Hotline/Zalo/Facebook/Messenger/Banner và bấm Lưu.
+8. Thiết bị còn lại refresh trang sẽ nhận dữ liệu mới.
+
+QUAN TRONG:
+- Không mở index.html trực tiếp nếu muốn đồng bộ nhiều thiết bị.
+- Giữ cửa sổ START-WEB.bat đang chạy.
+- Dữ liệu liên hệ dùng chung được lưu trong data/site-settings.json.
+- Sản phẩm và danh mục hiện vẫn đang lưu cục bộ trên từng trình duyệt. Có thể nâng cấp tiếp sang database dùng chung ở bước sau.

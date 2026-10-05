@@ -44,6 +44,62 @@ function saveSiteSettings() {
   return storageSet(settingsStorageKey, JSON.stringify(siteSettings));
 }
 
+let sharedSettingsConnected = false;
+
+function updateSyncStatus(message, state = "local") {
+  const el = document.getElementById("adminSyncStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.dataset.state = state;
+}
+
+async function loadSharedSiteSettings() {
+  if (window.location.protocol === "file:") {
+    sharedSettingsConnected = false;
+    updateSyncStatus("Chế độ cục bộ: thay đổi chỉ lưu trên thiết bị này", "local");
+    return false;
+  }
+  try {
+    const response = await fetch(`/api/settings?t=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (data && typeof data === "object") {
+      siteSettings = { ...defaultSiteSettings, ...data };
+      saveSiteSettings();
+      applySiteSettings();
+      if (typeof populateAdminSettings === "function" && document.getElementById("adminPhone")) {
+        populateAdminSettings();
+      }
+    }
+    sharedSettingsConnected = true;
+    updateSyncStatus("Đã kết nối đồng bộ máy chủ — điện thoại và máy tính dùng chung dữ liệu", "online");
+    return true;
+  } catch (error) {
+    sharedSettingsConnected = false;
+    updateSyncStatus("Không kết nối được máy chủ — đang dùng dữ liệu cục bộ", "offline");
+    return false;
+  }
+}
+
+async function saveSharedSiteSettings() {
+  if (window.location.protocol === "file:") return false;
+  try {
+    const response = await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(siteSettings)
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    sharedSettingsConnected = true;
+    updateSyncStatus("Đã lưu trên máy chủ — các thiết bị sẽ nhận thông tin mới", "online");
+    return true;
+  } catch (error) {
+    sharedSettingsConnected = false;
+    updateSyncStatus("Lưu máy chủ thất bại — dữ liệu chỉ được lưu trên thiết bị này", "offline");
+    return false;
+  }
+}
+
 function phoneDigits(value = "") {
   const raw = String(value).trim();
   const plus = raw.startsWith("+") ? "+" : "";
@@ -432,7 +488,7 @@ adminBanner.addEventListener("change", () => {
   });
 });
 
-document.getElementById("adminSaveSettings").addEventListener("click", () => {
+document.getElementById("adminSaveSettings").addEventListener("click", async () => {
   const phone = adminPhone.value.trim();
   if (!phoneDigits(phone)) { alert("Bạn chưa nhập số điện thoại hợp lệ."); return; }
   siteSettings = {
@@ -445,19 +501,31 @@ document.getElementById("adminSaveSettings").addEventListener("click", () => {
     messengerName: adminMessengerName.value.trim() || defaultSiteSettings.messengerName,
     banner: pendingBanner || siteSettings.banner || defaultSiteSettings.banner
   };
-  const persisted = saveSiteSettings();
+
+  const localPersisted = saveSiteSettings();
   applySiteSettings();
   populateAdminSettings();
-  showToast("Đã lưu cài đặt website");
-  if (!persisted) alert("Trình duyệt đang chặn lưu cục bộ. Thay đổi chỉ tồn tại trong phiên hiện tại.");
+
+  const sharedPersisted = await saveSharedSiteSettings();
+  if (sharedPersisted) {
+    showToast("Đã lưu và đồng bộ cài đặt website");
+  } else if (localPersisted) {
+    showToast("Đã lưu trên thiết bị hiện tại");
+    if (window.location.protocol === "file:") {
+      alert("Bạn đang mở website trực tiếp bằng file index.html. Cách này chỉ lưu dữ liệu trên từng trình duyệt, nên điện thoại sẽ không nhận thay đổi từ máy tính. Hãy chạy START-WEB.bat để bật chế độ đồng bộ.");
+    }
+  } else {
+    alert("Không thể lưu dữ liệu. Hãy chạy website bằng START-WEB.bat rồi thử lại.");
+  }
 });
 
-document.getElementById("adminResetSettings").addEventListener("click", () => {
+document.getElementById("adminResetSettings").addEventListener("click", async () => {
   if (!confirm("Khôi phục banner, hotline và liên kết liên hệ về mặc định?")) return;
   siteSettings = { ...defaultSiteSettings };
   saveSiteSettings();
   applySiteSettings();
   populateAdminSettings();
+  await saveSharedSiteSettings();
   showToast("Đã khôi phục cài đặt");
 });
 
@@ -589,3 +657,4 @@ applySiteSettings();
 renderCategoryUI();
 renderProducts();
 renderCart();
+loadSharedSiteSettings();
