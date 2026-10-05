@@ -1,0 +1,11 @@
+HOA CO LAU ADMIN V2
+
+1. Mo file index.html trong thu muc nay.
+2. Bam nut "⚙ Admin" goc duoi ben trai.
+3. Mat khau: hoacolau123
+4. Sau khi dang nhap, phan dau tien ben trai co khung vien xanh: "THONG TIN LIEN HE & BANNER".
+5. Tai day co cac o: So dien thoai, Link Zalo, Link Facebook, Link Messenger, Banner trang chu.
+6. Bam "Luu cai dat website".
+7. Cac nut noi goc phai website: Zalo, Facebook, MSG, Goi dien. Neu chua nhap link, bam nut se mo Admin de cau hinh.
+
+Neu trinh duyet dang mo ban cu: dong tab cu, mo dung index.html trong thu muc hoa-co-lau-shop-admin-v2, sau do Ctrl+F5.

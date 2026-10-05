@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Hoa Cỏ Lau - Hoa tươi, hoa cưới, tráp cưới hỏi tại Giồng Tre, An Ngãi Trung, Vĩnh Long." />
+  <title>Hoa Cỏ Lau | Hoa tươi - Tráp cưới hỏi</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🌾 Hoa tươi mỗi ngày • Thiết kế theo yêu cầu</span>
+      <a href="tel:0353724232" data-phone-link>Hotline: <span data-phone-text>0353 72 42 32</span></a>
+    </div>
+  </div>
+
+  <header class="header" id="top">
+    <div class="container nav-wrap">
+      <a class="brand" href="#top" aria-label="Hoa Cỏ Lau">
+        <span class="brand-mark">HCL</span>
+        <span>
+          <strong>Hoa Cỏ Lau</strong>
+          <small>Hoa tươi • Tráp cưới hỏi</small>
+        </span>
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Mở menu">☰</button>
+
+      <nav class="nav" id="mainNav">
+        <a href="#top">Trang chủ</a>
+        <a href="#categories">Danh mục</a>
+        <a href="#products">Sản phẩm</a>
+        <a href="#wedding">Cưới hỏi</a>
+        <a href="#contact">Liên hệ</a>
+        <a href="#admin" data-admin-open>Quản trị</a>
+      </nav>
+
+      <button class="cart-button" id="cartButton" aria-label="Mở giỏ hàng">
+        🛍️ <span>Giỏ hàng</span><b id="cartCount">0</b>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="banner-section" aria-label="Banner Hoa Cỏ Lau">
+      <img id="siteBanner" src="assets/banner-hoa-co-lau.webp" alt="Tiệm Hoa Cỏ Lau - Hoa tươi - Tráp cưới hỏi" />
+    </section>
+
+    <section class="hero-copy">
+      <div class="container hero-copy-grid">
+        <div>
+          <p class="eyebrow">Tiệm Hoa Cỏ Lau</p>
+          <h1>Trao hoa đẹp, gửi trọn tình cảm.</h1>
+          <p class="lead">Hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và tráp cưới hỏi được thiết kế chỉn chu theo từng dịp.</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#products">Xem mẫu hoa</a>
+            <a class="btn ghost" href="tel:0353724232" data-phone-link>☎ Gọi đặt hoa</a>
+          </div>
+        </div>
+        <div class="hero-note">
+          <div><span>01</span><p><strong>Thiết kế theo yêu cầu</strong><br />Phối màu, kiểu dáng và ngân sách linh hoạt.</p></div>
+          <div><span>02</span><p><strong>Hoa tươi chọn lọc</strong><br />Ưu tiên độ tươi và hình thức khi giao khách.</p></div>
+          <div><span>03</span><p><strong>Cưới hỏi trọn gói</strong><br />Hoa cưới, tráp cưới và trang trí theo concept.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="categories">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Chọn theo nhu cầu</p>
+            <h2>Danh mục nổi bật</h2>
+          </div>
+          <p>Chọn nhanh mẫu hoa phù hợp với dịp bạn đang cần.</p>
+        </div>
+        <div class="category-grid">
+          <button class="category-card" data-filter="sinh-nhat">
+            <span class="category-icon">🎂</span>
+            <strong>Hoa sinh nhật</strong>
+            <small>Tươi trẻ • Ấm áp</small>
+          </button>
+          <button class="category-card" data-filter="khai-truong">
+            <span class="category-icon">🎉</span>
+            <strong>Hoa khai trương</strong>
+            <small>Nổi bật • Sang trọng</small>
+          </button>
+          <button class="category-card" data-filter="tinh-yeu">
+            <span class="category-icon">💐</span>
+            <strong>Hoa tình yêu</strong>
+            <small>Lãng mạn • Tinh tế</small>
+          </button>
+          <button class="category-card" data-filter="cuoi-hoi">
+            <span class="category-icon">💍</span>
+            <strong>Hoa & tráp cưới</strong>
+            <small>Đồng bộ concept</small>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section products-section" id="products">
+      <div class="container">
+        <div class="section-head product-head">
+          <div>
+            <p class="eyebrow">Bộ sưu tập</p>
+            <h2>Mẫu hoa được yêu thích</h2>
+          </div>
+          <div class="product-tools">
+            <div class="search-box">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="Tìm hoa..." />
+            </div>
+            <select id="sortSelect" aria-label="Sắp xếp">
+              <option value="featured">Nổi bật</option>
+              <option value="price-asc">Giá thấp → cao</option>
+              <option value="price-desc">Giá cao → thấp</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row" id="filterRow">
+          <button class="filter-chip active" data-filter="all">Tất cả</button>
+          <button class="filter-chip" data-filter="sinh-nhat">Sinh nhật</button>
+          <button class="filter-chip" data-filter="khai-truong">Khai trương</button>
+          <button class="filter-chip" data-filter="tinh-yeu">Tình yêu</button>
+          <button class="filter-chip" data-filter="cuoi-hoi">Cưới hỏi</button>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+    </section>
+
+    <section class="wedding-section" id="wedding">
+      <div class="container wedding-grid">
+        <div class="wedding-art" aria-hidden="true">
+          <div class="ring ring-one"></div>
+          <div class="ring ring-two"></div>
+          <div class="wheat">🌾</div>
+        </div>
+        <div class="wedding-copy">
+          <p class="eyebrow">Dịch vụ cưới hỏi</p>
+          <h2>Hoa cưới & tráp cưới đồng bộ theo concept</h2>
+          <p>Từ hoa cầm tay cô dâu, hoa cài áo, hoa xe cưới đến tráp lễ: Hoa Cỏ Lau có thể phối đồng bộ màu sắc và phong cách cho ngày trọng đại.</p>
+          <ul class="check-list">
+            <li>✓ Tư vấn concept theo màu áo dài / váy cưới</li>
+            <li>✓ Điều chỉnh theo ngân sách</li>
+            <li>✓ Nhận thiết kế mẫu riêng theo yêu cầu</li>
+          </ul>
+          <a class="btn primary" href="tel:0353724232" data-phone-link>Tư vấn cưới hỏi</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section testimonials">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Khách hàng nói gì</p>
+            <h2>Một món quà đẹp bắt đầu từ sự chỉn chu</h2>
+          </div>
+        </div>
+        <div class="testimonial-grid">
+          <article><div class="stars">★★★★★</div><p>“Hoa phối màu rất xinh, gói sạch đẹp và lên hình sang. Mình đặt sinh nhật khá gấp nhưng shop hỗ trợ rất nhiệt tình.”</p><strong>Khách hàng sinh nhật</strong></article>
+          <article><div class="stars">★★★★★</div><p>“Tráp cưới phối đúng tông gia đình chọn. Tổng thể gọn gàng, đẹp mắt và đúng giờ.”</p><strong>Khách hàng cưới hỏi</strong></article>
+          <article><div class="stars">★★★★★</div><p>“Mẫu khai trương nhìn nổi bật, hoa tươi và tư vấn ngân sách rõ ràng.”</p><strong>Khách hàng doanh nghiệp</strong></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="container contact-grid">
+        <div>
+          <p class="eyebrow light">Liên hệ Hoa Cỏ Lau</p>
+          <h2>Đặt hoa nhanh qua điện thoại</h2>
+          <p class="contact-desc">Gửi cho shop dịp cần hoa, ngân sách, màu yêu thích và thời gian nhận. Shop sẽ tư vấn mẫu phù hợp.</p>
+        </div>
+        <div class="contact-card">
+          <div><span>📍</span><p><small>Địa chỉ</small><strong>Giồng Tre, An Ngãi Trung, Vĩnh Long</strong></p></div>
+          <div><span>☎️</span><p><small>Hotline</small><a href="tel:0353724232" data-phone-link><span data-phone-text>0353 72 42 32</span></a></p></div>
+          <div id="contactZaloRow"><span class="social-badge zalo-badge">Z</span><p><small>Zalo</small><a href="#" data-zalo-link target="_blank" rel="noopener noreferrer">Nhắn Zalo</a></p></div>
+          <div id="contactFacebookRow"><span class="social-badge facebook-badge">f</span><p><small>Facebook</small><a href="#" data-facebook-link target="_blank" rel="noopener noreferrer">Mở Facebook</a></p></div>
+          <div id="contactMessengerRow"><span class="social-badge messenger-badge">M</span><p><small>Messenger</small><a href="#" data-messenger-link target="_blank" rel="noopener noreferrer">Nhắn Messenger</a></p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>Hoa Cỏ Lau</strong>
+        <p>Hoa tươi • Hoa cưới • Tráp cưới hỏi</p>
+      </div>
+      <div class="footer-links">
+        <a href="#products">Sản phẩm</a>
+        <a href="#wedding">Cưới hỏi</a>
+        <a href="#contact">Liên hệ</a>
+        <a href="#admin" data-admin-open>Quản trị</a>
+        <a href="#admin" data-admin-open>Quản trị</a>
+      </div>
+      <p>© 2026 Hoa Cỏ Lau. Website mẫu.</p>
+    </div>
+  </footer>
+
+  <button class="floating-admin" id="adminOpenBtn" type="button">⚙ Admin</button>
+  <div class="floating-contact-dock" aria-label="Liên hệ nhanh">
+    <a class="floating-contact floating-zalo" href="#" data-zalo-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Zalo"><span>Zalo</span></a>
+    <a class="floating-contact floating-facebook" href="#" data-facebook-link target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook"><span>f</span></a>
+    <a class="floating-contact floating-messenger" href="#" data-messenger-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Messenger"><span>MSG</span></a>
+    <a class="floating-contact floating-call" href="tel:0353724232" data-phone-link aria-label="Gọi Hoa Cỏ Lau"><span>☎</span></a>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Giỏ hàng">
+    <div class="cart-head">
+      <div>
+        <small>Đơn hoa của bạn</small>
+        <h3>Giỏ hàng</h3>
+      </div>
+      <button id="cartClose" aria-label="Đóng">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-empty" id="cartEmpty">
+      <div>🌷</div>
+      <p>Giỏ hàng đang trống.</p>
+      <small>Chọn một mẫu hoa bạn thích nhé.</small>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Tạm tính</span><strong id="cartTotal">0₫</strong></div>
+      <a class="btn primary full" href="tel:0353724232" data-phone-link>Gọi shop để chốt đơn</a>
+      <small>Giá và mẫu hoa có thể thay đổi theo thời điểm. Shop sẽ xác nhận trước khi làm.</small>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast">Đã thêm vào giỏ hàng</div>
+
+  <section class="admin-shell" id="adminShell" hidden>
+    <div class="admin-login" id="adminLogin">
+      <div class="admin-login-card">
+        <div class="admin-logo">HCL</div>
+        <p class="eyebrow">Khu vực quản trị</p>
+        <h2>Hoa Cỏ Lau Admin</h2>
+        <p>Quản lý sản phẩm, banner, số điện thoại và các kênh liên hệ của website.</p>
+        <label>Mật khẩu</label>
+        <input id="adminPassword" type="password" placeholder="Nhập mật khẩu" />
+        <button class="btn primary full" id="adminLoginBtn">Đăng nhập</button>
+        <button class="admin-text-btn" id="adminExitFromLogin">← Về website</button>
+        <small class="admin-warning">Lưu ý: đây là bản quản trị chạy trên máy hiện tại, chưa phải hệ thống bảo mật dùng cho website thật.</small>
+      </div>
+    </div>
+
+    <div class="admin-app" id="adminApp" hidden>
+      <header class="admin-topbar">
+        <div>
+          <small>TIỆM HOA CỎ LAU</small>
+          <h2>Quản lý website & sản phẩm <span class="admin-version">V2</span></h2>
+        </div>
+        <div class="admin-top-actions">
+          <button class="admin-secondary" id="adminGoSettings">Cài đặt website</button>
+          <button class="admin-secondary" id="adminResetSamples">Khôi phục mẫu</button>
+          <button class="admin-secondary" id="adminExit">Xem website</button>
+        </div>
+      </header>
+
+      <div class="admin-layout">
+        <div class="admin-side-stack">
+          <section class="admin-settings-card" id="adminSettingsCard">
+            <div class="admin-form-title">
+              <div>
+                <small>WEBSITE</small>
+                <h3>Thông tin liên hệ & Banner</h3>
+                <p class="admin-section-note">Sửa hotline, Zalo, Facebook, Messenger và banner tại đây.</p>
+              </div>
+            </div>
+
+            <label>Số điện thoại / Hotline</label>
+            <input id="adminPhone" type="text" placeholder="0353 72 42 32" />
+
+            <label>Link Zalo</label>
+            <input id="adminZalo" type="text" placeholder="https://zalo.me/0353724232" />
+
+            <label>Link Facebook</label>
+            <input id="adminFacebook" type="text" placeholder="https://facebook.com/ten-trang" />
+
+            <label>Link Messenger</label>
+            <input id="adminMessenger" type="text" placeholder="https://m.me/ten-trang" />
+
+            <label>Banner trang chủ</label>
+            <input id="adminBanner" type="file" accept="image/*" />
+            <div class="admin-banner-preview" id="adminBannerPreview">
+              <span>Banner hiện tại</span>
+            </div>
+            <small class="admin-help">Banner sẽ được thu nhỏ để dễ lưu. Nên dùng ảnh ngang tỉ lệ khoảng 2:1.</small>
+
+            <button class="btn primary full" id="adminSaveSettings">Lưu cài đặt website</button>
+            <button class="admin-outline-btn full" id="adminResetSettings">Khôi phục cài đặt mặc định</button>
+          </section>
+
+          <aside class="admin-form-card">
+          <div class="admin-form-title">
+            <div>
+              <small>SẢN PHẨM</small>
+              <h3 id="adminFormTitle">Thêm sản phẩm mới</h3>
+            </div>
+            <button class="admin-text-btn" id="adminClearForm">Làm mới</button>
+          </div>
+
+          <input type="hidden" id="adminProductId" />
+          <label>Tên sản phẩm</label>
+          <input id="adminName" type="text" placeholder="Ví dụ: Bó hoa Nắng Dịu Dàng" />
+
+          <div class="admin-two-cols">
+            <div>
+              <label>Danh mục</label>
+              <select id="adminCategory">
+                <option value="sinh-nhat">Hoa sinh nhật</option>
+                <option value="khai-truong">Hoa khai trương</option>
+                <option value="tinh-yeu">Hoa tình yêu</option>
+                <option value="cuoi-hoi">Hoa & tráp cưới</option>
+              </select>
+            </div>
+            <div>
+              <label>Giá bán (VNĐ)</label>
+              <input id="adminPrice" type="number" min="0" step="1000" placeholder="350000" />
+            </div>
+          </div>
+
+          <label>Mô tả ngắn</label>
+          <textarea id="adminDesc" rows="3" placeholder="Mô tả sản phẩm..."></textarea>
+
+          <label>Nhãn nổi bật</label>
+          <input id="adminBadge" type="text" placeholder="Ví dụ: Bán chạy" />
+
+          <label>Hình ảnh sản phẩm</label>
+          <input id="adminImage" type="file" accept="image/*" />
+          <div class="admin-image-preview" id="adminImagePreview">
+            <span>Chưa chọn ảnh</span>
+          </div>
+          <small class="admin-help">Ảnh được lưu trong trình duyệt trên máy này. Nên dùng ảnh JPG/WebP dung lượng nhỏ.</small>
+
+          <button class="btn primary full" id="adminSaveProduct">Lưu sản phẩm</button>
+          </aside>
+        </div>
+
+        <main class="admin-products-card">
+          <div class="admin-products-head">
+            <div>
+              <small>DANH SÁCH</small>
+              <h3>Sản phẩm hiện có</h3>
+            </div>
+            <span id="adminProductCount">0 sản phẩm</span>
+          </div>
+          <div class="admin-product-list" id="adminProductList"></div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
