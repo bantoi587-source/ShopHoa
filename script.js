@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V6.1 - GitHub Pages + Supabase + auto sync
+// Hoa Cỏ Lau V7.1 - GitHub Pages + Supabase + unique flower IDs + Excel import/export
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -79,6 +79,22 @@ let pendingBannerFile = null;
 let pendingProductImageFile = null;
 
 const money = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
+
+
+function flowerCode(id) {
+  const n = Number(id);
+  if (!Number.isInteger(n) || n <= 0) return "";
+  return `HCL-${String(n).padStart(6, "0")}`;
+}
+
+function flowerIdToDbId(value) {
+  const raw = String(value ?? "").trim().toUpperCase();
+  if (!raw) return null;
+  const match = raw.match(/^HCL-0*(\d+)$/) || raw.match(/^(\d+)$/);
+  if (!match) return null;
+  const id = Number(match[1]);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
 
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>'"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[c]));
@@ -164,6 +180,7 @@ function mapCategoryRow(row) {
 function mapProductRow(row) {
   return {
     id: Number(row.id),
+    flowerId: flowerCode(row.id),
     name: row.name,
     category: row.category_id == null ? "" : String(row.category_id),
     categoryName: "",
@@ -275,8 +292,8 @@ async function refreshSharedSettings({ silent = true } = {}) {
 
 function startCrossDeviceSettingsSync() {
   // Khi quay lại trang trên điện thoại, lấy dữ liệu mới ngay lập tức.
-  window.addEventListener("focus", () => refreshSharedSettings({ silent: true }));
-  window.addEventListener("pageshow", () => refreshSharedSettings({ silent: true }));
+  window.addEventListener("focus", () => { refreshSharedSettings({ silent: true }); loadPublicData({ silent: true }); });
+  window.addEventListener("pageshow", () => { refreshSharedSettings({ silent: true }); loadPublicData({ silent: true }); });
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) refreshSharedSettings({ silent: true });
   });
@@ -285,6 +302,11 @@ function startCrossDeviceSettingsSync() {
   window.__hoaCoLauSettingsTimer = window.setInterval(() => {
     if (!document.hidden) refreshSharedSettings({ silent: true });
   }, 8000);
+
+  // Đồng bộ danh mục/sản phẩm định kỳ để thay đổi import trên Admin xuất hiện ở thiết bị khác.
+  window.__hoaCoLauCatalogTimer = window.setInterval(() => {
+    if (!document.hidden) loadPublicData({ silent: true });
+  }, 20000);
 
   // Realtime: nếu bảng site_settings đã bật trong Supabase Realtime thì cập nhật gần như tức thì.
   try {
@@ -401,7 +423,11 @@ function renderCategoryUI() {
 function renderProducts() {
   if (!productGrid) return;
   const term = (searchInput?.value || "").trim().toLowerCase();
-  let list = products.filter(p => (currentFilter === "all" || String(p.category) === String(currentFilter)) && p.name.toLowerCase().includes(term));
+  let list = products.filter(p => {
+    const matchesFilter = currentFilter === "all" || String(p.category) === String(currentFilter);
+    const haystack = `${p.name || ""} ${p.desc || ""} ${p.flowerId || flowerCode(p.id)}`.toLowerCase();
+    return matchesFilter && haystack.includes(term);
+  });
   if (sortSelect?.value === "price-asc") list.sort((a, b) => a.price - b.price);
   if (sortSelect?.value === "price-desc") list.sort((a, b) => b.price - a.price);
 
@@ -413,6 +439,7 @@ function renderProducts() {
       </div>
       <div class="product-info">
         <div class="product-category">${escapeHtml(getCategoryName(p.category, p.categoryName || ""))}</div>
+        <div class="product-code">Mã hoa: ${escapeHtml(p.flowerId || flowerCode(p.id))}</div>
         <h3 class="product-name">${escapeHtml(p.name)}</h3>
         <div class="product-desc">${escapeHtml(p.desc || "")}</div>
         <div class="product-foot">
@@ -519,6 +546,7 @@ const adminPassword = document.getElementById("adminPassword");
 const adminProductList = document.getElementById("adminProductList");
 const adminProductCount = document.getElementById("adminProductCount");
 const adminProductId = document.getElementById("adminProductId");
+const adminFlowerId = document.getElementById("adminFlowerId");
 const adminName = document.getElementById("adminName");
 const adminCategory = document.getElementById("adminCategory");
 const adminPrice = document.getElementById("adminPrice");
@@ -540,6 +568,9 @@ const adminCategoryName = document.getElementById("adminCategoryName");
 const adminCategoryIcon = document.getElementById("adminCategoryIcon");
 const adminCategoryDesc = document.getElementById("adminCategoryDesc");
 const adminCategoryList = document.getElementById("adminCategoryList");
+const adminImportFile = document.getElementById("adminImportFile");
+const adminImportBtn = document.getElementById("adminImportBtn");
+const adminImportStatus = document.getElementById("adminImportStatus");
 
 async function refreshAdminAuthState() {
   const { data, error } = await supabaseClient.auth.getSession();
@@ -863,6 +894,7 @@ adminCategoryList?.addEventListener("click", e => {
 function clearAdminForm() {
   if (!adminProductId) return;
   adminProductId.value = "";
+  if (adminFlowerId) adminFlowerId.value = "Tự động cấp khi lưu";
   adminName.value = "";
   renderAdminCategoryOptions();
   if (categories[0]) adminCategory.value = categories[0].id;
@@ -891,7 +923,7 @@ function renderAdminProducts() {
     const isFallback = usingFallbackProducts;
     return `<div class="admin-product-row">
       <div class="admin-thumb">${p.image ? `<img src="${escapeHtml(p.image)}" alt="">` : `<span>💐</span>`}</div>
-      <div><h4>${escapeHtml(p.name)}</h4><p>${escapeHtml(getCategoryName(p.category, p.categoryName || ""))} • ${escapeHtml(p.badge || "Không nhãn")}${isFallback ? " • mẫu cục bộ" : ""}</p><strong>${money.format(Number(p.price) || 0)}</strong></div>
+      <div><h4>${escapeHtml(p.name)}</h4><p><span class="admin-product-code">${escapeHtml(p.flowerId || flowerCode(p.id))}</span> • ${escapeHtml(getCategoryName(p.category, p.categoryName || ""))} • ${escapeHtml(p.badge || "Không nhãn")}${isFallback ? " • mẫu cục bộ" : ""}</p><strong>${money.format(Number(p.price) || 0)}</strong></div>
       <div class="admin-row-actions"><button data-edit-product="${p.id}" ${isFallback ? "disabled" : ""}>Sửa</button><button class="danger" data-delete-product="${p.id}" ${isFallback ? "disabled" : ""}>Xóa</button></div>
     </div>`;
   }).join("");
@@ -908,6 +940,7 @@ function editAdminProduct(id) {
   const p = products.find(x => x.id === id);
   if (!p || usingFallbackProducts) return;
   adminProductId.value = p.id;
+  if (adminFlowerId) adminFlowerId.value = p.flowerId || flowerCode(p.id);
   adminName.value = p.name;
   adminCategory.value = p.category;
   adminPrice.value = p.price;
@@ -977,24 +1010,302 @@ document.getElementById("adminSaveProduct")?.addEventListener("click", async () 
     };
 
     let error;
+    let savedId = id || null;
     if (id) {
-      ({ error } = await supabaseClient.from("products").update(payload).eq("id", id));
+      const result = await supabaseClient.from("products").update(payload).eq("id", id).select("id").maybeSingle();
+      error = result.error;
+      savedId = result.data?.id || id;
     } else {
       delete payload.updated_at;
       payload.sort_order = 0;
-      ({ error } = await supabaseClient.from("products").insert(payload));
+      const result = await supabaseClient.from("products").insert(payload).select("id").single();
+      error = result.error;
+      savedId = result.data?.id || null;
     }
     if (error) throw error;
 
     await loadPublicData({ silent: true });
     clearAdminForm();
-    showToast("Đã lưu sản phẩm lên Supabase");
+    showToast(savedId ? `Đã lưu ${flowerCode(savedId)} lên Supabase` : "Đã lưu sản phẩm lên Supabase");
   } catch (error) {
     console.error(error);
     alert(explainSupabaseError(error, "Không thể lưu sản phẩm"));
   } finally {
     button.disabled = false;
     button.textContent = "Lưu sản phẩm";
+  }
+});
+
+
+// ---------------- V7.1: Export / Import Excel dữ liệu hoa ----------------
+function isoDateForFile() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function ensureExcelLibrary() {
+  if (!window.XLSX?.utils) {
+    throw new Error("Không tải được thư viện Excel. Hãy kiểm tra Internet rồi tải lại trang.");
+  }
+  return window.XLSX;
+}
+
+async function fetchTransferData() {
+  const [catRes, prodRes] = await Promise.all([
+    supabaseClient.from("categories").select("*").order("sort_order", { ascending: true }).order("id", { ascending: true }),
+    supabaseClient.from("products").select("*").order("id", { ascending: true })
+  ]);
+  if (catRes.error) throw catRes.error;
+  if (prodRes.error) throw prodRes.error;
+  const categoryRows = catRes.data || [];
+  const catMap = new Map(categoryRows.map(c => [Number(c.id), c.name || ""]));
+  const productRows = (prodRes.data || []).map(row => ({
+    flower_id: flowerCode(row.id),
+    name: row.name || "",
+    category: catMap.get(Number(row.category_id)) || "",
+    price: Number(row.price) || 0,
+    description: row.description || "",
+    label: row.label || "",
+    image_url: row.image_url || "",
+    active: row.active !== false,
+    sort_order: Number(row.sort_order) || 0
+  }));
+  return { productRows, categoryRows };
+}
+
+function setExcelColumnWidths(ws) {
+  ws["!cols"] = [
+    { wch: 16 }, { wch: 30 }, { wch: 24 }, { wch: 16 }, { wch: 42 },
+    { wch: 18 }, { wch: 50 }, { wch: 12 }, { wch: 12 }
+  ];
+  if (ws["!ref"]) ws["!autofilter"] = { ref: ws["!ref"] };
+}
+
+async function exportProductsExcel() {
+  try {
+    const XLSX = ensureExcelLibrary();
+    const { productRows, categoryRows } = await fetchTransferData();
+    const wb = XLSX.utils.book_new();
+
+    const wsProducts = XLSX.utils.json_to_sheet(productRows, {
+      header: ["flower_id", "name", "category", "price", "description", "label", "image_url", "active", "sort_order"]
+    });
+    setExcelColumnWidths(wsProducts);
+    XLSX.utils.book_append_sheet(wb, wsProducts, "MauHoa");
+
+    const categoryExport = categoryRows.map(c => ({
+      category_id: Number(c.id),
+      name: c.name || "",
+      icon: c.icon || "",
+      description: c.description || "",
+      active: c.active !== false,
+      sort_order: Number(c.sort_order) || 0
+    }));
+    const wsCategories = XLSX.utils.json_to_sheet(categoryExport, {
+      header: ["category_id", "name", "icon", "description", "active", "sort_order"]
+    });
+    wsCategories["!cols"] = [{wch:14},{wch:25},{wch:10},{wch:45},{wch:12},{wch:12}];
+    if (wsCategories["!ref"]) wsCategories["!autofilter"] = { ref: wsCategories["!ref"] };
+    XLSX.utils.book_append_sheet(wb, wsCategories, "DanhMuc");
+
+    const guideRows = [
+      ["HƯỚNG DẪN", "CÁCH DÙNG"],
+      ["Sheet cần chỉnh", "MauHoa"],
+      ["flower_id", "Giữ nguyên mã HCL của hoa cũ. Để trống khi thêm hoa mới."],
+      ["name", "Tên mẫu hoa - bắt buộc."],
+      ["category", "Tên danh mục. Nếu chưa có, hệ thống sẽ tự tạo khi import."],
+      ["price", "Giá bán dạng số, ví dụ 350000."],
+      ["description", "Mô tả ngắn."],
+      ["label", "Ví dụ: Bán chạy, Mới."],
+      ["image_url", "Để trống khi cập nhật hoa cũ để giữ ảnh hiện tại."],
+      ["active", "TRUE để hiển thị, FALSE để ẩn."],
+      ["sort_order", "Số thứ tự hiển thị."],
+      ["Lưu ý", "Import không tự xóa sản phẩm không có trong file Excel."]
+    ];
+    const wsGuide = XLSX.utils.aoa_to_sheet(guideRows);
+    wsGuide["!cols"] = [{wch:22},{wch:72}];
+    XLSX.utils.book_append_sheet(wb, wsGuide, "HuongDan");
+
+    XLSX.writeFile(wb, `hoa-co-lau-${isoDateForFile()}.xlsx`, { compression: true });
+    showToast(`Đã xuất ${productRows.length} mẫu hoa ra Excel`);
+  } catch (error) {
+    alert(explainSupabaseError(error, "Không thể xuất Excel"));
+  }
+}
+
+function normalizeExcelHeader(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function parseBool(value, fallback = true) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  const v = String(value ?? "").trim().toLowerCase();
+  if (!v) return fallback;
+  if (["true", "1", "yes", "y", "co", "có", "active", "bat", "bật", "hien", "hiện"].includes(v)) return true;
+  if (["false", "0", "no", "n", "khong", "không", "inactive", "tat", "tắt", "an", "ẩn"].includes(v)) return false;
+  return fallback;
+}
+
+function normalizeImportRow(row) {
+  const normalized = {};
+  for (const [key, value] of Object.entries(row || {})) normalized[normalizeExcelHeader(key)] = value;
+  const get = (...keys) => {
+    for (const key of keys.map(normalizeExcelHeader)) {
+      if (normalized[key] != null && String(normalized[key]).trim() !== "") return normalized[key];
+    }
+    return "";
+  };
+  return {
+    flower_id: String(get("flower_id", "flowerid", "ma_hoa", "mã hoa", "id")).trim(),
+    name: String(get("name", "ten", "tên", "ten_san_pham", "tên sản phẩm", "ten_mau_hoa")).trim(),
+    category: String(get("category", "danh_muc", "danh mục", "ten_danh_muc")).trim(),
+    price: Number(String(get("price", "gia", "giá", "gia_ban", "giá bán")).replace(/[^0-9.-]/g, "")) || 0,
+    description: String(get("description", "mo_ta", "mô tả")).trim(),
+    label: String(get("label", "nhan", "nhãn")).trim(),
+    image_url: String(get("image_url", "image", "hinh_anh", "hình ảnh", "url_hinh_anh")).trim(),
+    active: parseBool(get("active", "hien_thi", "hiển thị"), true),
+    sort_order: Number(String(get("sort_order", "thu_tu", "thứ tự")).replace(/[^0-9.-]/g, "")) || 0
+  };
+}
+
+async function readImportFile(file) {
+  ensureExcelLibrary();
+  const name = String(file?.name || "").toLowerCase();
+  if (!name.endsWith(".xlsx") && !name.endsWith(".xls")) {
+    throw new Error("Chỉ hỗ trợ file Excel .xlsx hoặc .xls.");
+  }
+  const data = await file.arrayBuffer();
+  const wb = window.XLSX.read(data, { type: "array", cellDates: false });
+  if (!wb.SheetNames?.length) throw new Error("File Excel không có worksheet nào.");
+  const wanted = wb.SheetNames.find(n => normalizeExcelHeader(n) === "mauhoa") || wb.SheetNames[0];
+  const ws = wb.Sheets[wanted];
+  const rawRows = window.XLSX.utils.sheet_to_json(ws, { defval: "", raw: true });
+  return rawRows.map(normalizeImportRow).filter(row => Object.values(row).some(v => String(v ?? "").trim() !== ""));
+}
+
+async function getOrCreateCategoryId(name, categoryMap, maxSortRef) {
+  const clean = String(name || "").trim() || "Chưa phân loại";
+  const key = clean.toLowerCase();
+  if (categoryMap.has(key)) return categoryMap.get(key);
+  maxSortRef.value += 1;
+  const { data, error } = await supabaseClient.from("categories").insert({
+    name: clean,
+    icon: "🌸",
+    description: "Danh mục được tạo khi import dữ liệu Excel",
+    active: true,
+    sort_order: maxSortRef.value
+  }).select("id,name").single();
+  if (error) throw error;
+  categoryMap.set(String(data.name).toLowerCase(), Number(data.id));
+  return Number(data.id);
+}
+
+async function importProductsFile(file) {
+  const incoming = await readImportFile(file);
+  if (!incoming.length) throw new Error("File Excel không có dòng sản phẩm nào trong sheet MauHoa.");
+
+  const [catRes, prodRes] = await Promise.all([
+    supabaseClient.from("categories").select("id,name,sort_order"),
+    supabaseClient.from("products").select("id,image_url")
+  ]);
+  if (catRes.error) throw catRes.error;
+  if (prodRes.error) throw prodRes.error;
+
+  const categoryMap = new Map((catRes.data || []).map(c => [String(c.name || "").trim().toLowerCase(), Number(c.id)]));
+  const maxSortRef = { value: (catRes.data || []).reduce((m, c) => Math.max(m, Number(c.sort_order) || 0), 0) };
+  const existingMap = new Map((prodRes.data || []).map(p => [Number(p.id), p]));
+  let updated = 0, added = 0, skipped = 0;
+  const errors = [];
+
+  for (let index = 0; index < incoming.length; index++) {
+    const row = incoming[index];
+    if (!row.name) { skipped++; errors.push(`Dòng ${index + 2}: thiếu tên sản phẩm.`); continue; }
+    try {
+      const categoryId = await getOrCreateCategoryId(row.category, categoryMap, maxSortRef);
+      const requestedId = flowerIdToDbId(row.flower_id);
+      const existing = requestedId ? existingMap.get(requestedId) : null;
+      const payload = {
+        name: row.name,
+        price: Math.max(0, Number(row.price) || 0),
+        category_id: categoryId,
+        description: row.description || "",
+        label: row.label || "",
+        image_url: row.image_url || existing?.image_url || "",
+        active: row.active !== false,
+        sort_order: Number(row.sort_order) || 0,
+        updated_at: new Date().toISOString()
+      };
+
+      if (existing) {
+        const { error } = await supabaseClient.from("products").update(payload).eq("id", requestedId);
+        if (error) throw error;
+        updated++;
+      } else {
+        delete payload.updated_at;
+        const { data, error } = await supabaseClient.from("products").insert(payload).select("id,image_url").single();
+        if (error) throw error;
+        existingMap.set(Number(data.id), data);
+        added++;
+      }
+    } catch (error) {
+      skipped++;
+      errors.push(`Dòng ${index + 2} (${row.name}): ${error.message || error}`);
+    }
+  }
+  return { total: incoming.length, updated, added, skipped, errors };
+}
+
+function setImportStatus(text, state = "") {
+  if (!adminImportStatus) return;
+  adminImportStatus.textContent = text;
+  if (state) adminImportStatus.dataset.state = state;
+  else adminImportStatus.removeAttribute("data-state");
+}
+
+document.getElementById("adminExportExcel")?.addEventListener("click", exportProductsExcel);
+
+adminImportFile?.addEventListener("change", async () => {
+  const file = adminImportFile.files?.[0];
+  adminImportBtn.disabled = !file;
+  if (!file) { setImportStatus("Chưa chọn file Excel import."); return; }
+  try {
+    const rows = await readImportFile(file);
+    const withId = rows.filter(r => flowerIdToDbId(r.flower_id)).length;
+    const newRows = rows.length - withId;
+    setImportStatus(`Đã đọc ${rows.length} dòng Excel. ${withId} dòng có mã hoa để cập nhật, ${newRows} dòng sẽ tạo sản phẩm mới.`, "ok");
+  } catch (error) {
+    adminImportBtn.disabled = true;
+    setImportStatus(`Không đọc được file Excel: ${error.message || error}`, "warn");
+  }
+});
+
+adminImportBtn?.addEventListener("click", async () => {
+  const file = adminImportFile.files?.[0];
+  if (!file) return;
+  if (!confirm("Import Excel sẽ cập nhật sản phẩm theo mã HCL và thêm các dòng mới. Không có sản phẩm nào bị xóa. Tiếp tục?")) return;
+  adminImportBtn.disabled = true;
+  adminImportBtn.textContent = "Đang import Excel...";
+  setImportStatus("Đang ghi dữ liệu Excel lên Supabase...", "");
+  try {
+    const result = await importProductsFile(file);
+    await loadPublicData({ silent: true });
+    const details = result.errors.length ? `\nLỗi/bỏ qua đầu tiên:\n${result.errors.slice(0, 5).join("\n")}` : "";
+    setImportStatus(`Hoàn tất ${result.total} dòng: cập nhật ${result.updated}, thêm mới ${result.added}, bỏ qua/lỗi ${result.skipped}.${details}`, result.skipped ? "warn" : "ok");
+    showToast("Import Excel dữ liệu hoa hoàn tất");
+    adminImportFile.value = "";
+  } catch (error) {
+    console.error(error);
+    setImportStatus(explainSupabaseError(error, "Import Excel thất bại"), "warn");
+  } finally {
+    adminImportBtn.disabled = false;
+    adminImportBtn.textContent = "Import Excel vào website";
   }
 });
 

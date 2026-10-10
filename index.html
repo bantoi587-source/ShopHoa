@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Hoa Cỏ Lau - Hoa tươi, hoa cưới, tráp cưới hỏi tại Giồng Tre, An Ngãi Trung, Vĩnh Long." />
   <title>Hoa Cỏ Lau | Hoa tươi - Tráp cưới hỏi</title>
-  <link rel="stylesheet" href="styles.css?v=6.1.0" />
+  <link rel="stylesheet" href="styles.css?v=7.1.0" />
 </head>
 <body>
   <div class="topbar">
@@ -51,7 +51,7 @@
       <div class="container hero-copy-grid">
         <div>
           <p class="eyebrow">Tiệm Hoa Cỏ Lau</p>
-          <h1>Trao hoa đẹp, gửi trọn yêu thương.</h1>
+          <h1>Trao hoa đẹp, gửi trọn tình cảm.</h1>
           <p class="lead">Hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và tráp cưới hỏi được thiết kế chỉn chu theo từng dịp.</p>
           <div class="hero-actions">
             <a class="btn primary" href="#products">Xem mẫu hoa</a>
@@ -231,7 +231,7 @@
         <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu Supabase" />
         <button class="btn primary full" id="adminLoginBtn">Đăng nhập</button>
         <button class="admin-text-btn" id="adminExitFromLogin">← Về website</button>
-        <small class="admin-warning">Bản V6 dùng Supabase. Không cần START-WEB.bat và có thể chạy trực tiếp trên GitHub Pages.</small>
+        <small class="admin-warning">Bản V7.1 dùng Supabase. Không cần START-WEB.bat và có thể chạy trực tiếp trên GitHub Pages.</small>
       </div>
     </div>
 
@@ -239,7 +239,7 @@
       <header class="admin-topbar">
         <div>
           <small>TIỆM HOA CỎ LAU</small>
-          <h2>Quản lý website & sản phẩm <span class="admin-version">V6.1</span></h2>
+          <h2>Quản lý website & sản phẩm <span class="admin-version">V7.1</span></h2>
         </div>
         <div class="admin-top-actions">
           <button class="admin-secondary" id="adminGoSettings">Cài đặt website</button>
@@ -327,6 +327,10 @@
           </div>
 
           <input type="hidden" id="adminProductId" />
+          <label>Mã hoa / ID duy nhất</label>
+          <input id="adminFlowerId" type="text" value="Tự động cấp khi lưu" readonly />
+          <small class="admin-help">Mã dạng HCL-000001 được tạo từ ID Supabase và không đổi khi sửa sản phẩm.</small>
+
           <label>Tên sản phẩm</label>
           <input id="adminName" type="text" placeholder="Ví dụ: Bó hoa Nắng Dịu Dàng" />
 
@@ -359,6 +363,25 @@
         </div>
 
         <main class="admin-products-card">
+          <section class="admin-data-tools" id="adminDataTools">
+            <div class="admin-form-title">
+              <div>
+                <small>DỮ LIỆU HOA</small>
+                <h3>Xuất / nhập toàn bộ mẫu hoa</h3>
+                <p class="admin-section-note">Xuất toàn bộ mẫu hoa thành file Excel .xlsx, chỉnh trực tiếp trong Excel rồi import lại. Mã hoa có sẵn sẽ được cập nhật; dòng không có mã sẽ tạo mẫu hoa mới.</p>
+              </div>
+            </div>
+            <div class="admin-transfer-actions">
+              <button class="admin-secondary" id="adminExportExcel" type="button">⬇ Xuất Excel (.xlsx)</button>
+              <a class="admin-outline-btn" id="adminDownloadTemplate" href="mau-import-hoa-co-lau.xlsx" download>Tải file Excel mẫu</a>
+            </div>
+            <label>Import file Excel đã chỉnh sửa</label>
+            <input id="adminImportFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+            <small class="admin-help">Chỉnh sheet <strong>MauHoa</strong>. Không thay đổi mã HCL của sản phẩm cũ. Muốn thêm hoa mới, thêm một dòng và để trống cột flower_id.</small>
+            <button class="btn primary full" id="adminImportBtn" type="button" disabled>Import Excel vào website</button>
+            <div class="admin-import-status" id="adminImportStatus">Chưa chọn file import.</div>
+          </section>
+
           <div class="admin-products-head">
             <div>
               <small>DANH SÁCH</small>
@@ -372,7 +395,8 @@
     </div>
   </section>
 
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=6.1.0"></script>
+  <script src="script.js?v=7.1.0"></script>
 </body>
 </html>

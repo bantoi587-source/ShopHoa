@@ -600,3 +600,71 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   color: #1d4ed8;
   border-color: #bfdbfe;
 }
+
+
+/* ===== V7: unique flower ID + data import/export ===== */
+.product-code {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 2px 0 7px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f0f7fa;
+  color: #476271;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .7px;
+}
+#adminFlowerId {
+  background: #f6f8f9;
+  color: #355062;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+.admin-data-tools {
+  border: 1px solid #dce7ec;
+  background: linear-gradient(180deg, #fbfeff 0%, #f5fbfd 100%);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.admin-transfer-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin: 14px 0 18px;
+}
+.admin-data-tools > label {
+  display: block;
+  margin: 12px 0 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #314654;
+}
+.admin-data-tools input[type="file"] {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px dashed #b7cad4;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+.admin-import-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f6f8f9;
+  border: 1px solid #e2e8ec;
+  color: #5d707b;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.admin-import-status[data-state="ok"] { background:#ecfdf5; border-color:#a7f3d0; color:#047857; }
+.admin-import-status[data-state="warn"] { background:#fff7ed; border-color:#fed7aa; color:#c2410c; }
+.admin-product-code { color:#547181; font-weight:800; letter-spacing:.4px; }
+@media (max-width: 760px) {
+  .admin-transfer-actions { grid-template-columns: 1fr; }
+  .admin-data-tools { padding: 14px; }
+}

@@ -1,0 +1,17 @@
+HOA CO LAU V7.1 - HUONG DAN IMPORT / EXPORT EXCEL
+
+1. Vao Admin > DU LIEU HOA.
+2. Bam "Xuat Excel (.xlsx)" de tai tat ca mau hoa hien co.
+3. Mo file bang Microsoft Excel / LibreOffice / Google Sheets (sau do tai lai dang .xlsx).
+4. Chinh du lieu trong sheet "MauHoa".
+5. KHONG sua flower_id cua mau hoa cu (vi du HCL-000001).
+6. Them hoa moi: them dong moi va de trong flower_id.
+7. image_url: de trong khi cap nhat hoa cu neu muon giu anh hien tai.
+8. Luu file dang .xlsx.
+9. Quay lai Admin > chon file Excel > Import Excel vao website.
+10. Import se cap nhat / them moi, KHONG tu dong xoa san pham khong co trong file.
+
+Cac cot trong sheet MauHoa:
+flower_id | name | category | price | description | label | image_url | active | sort_order
+
+File mau: mau-import-hoa-co-lau.xlsx

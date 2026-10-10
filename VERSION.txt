@@ -1,0 +1,6 @@
+Hoa Co Lau Website V7.1.0
+- Export to Excel .xlsx
+- Import Excel .xlsx / .xls
+- Unique flower ID HCL-xxxxxx
+- Excel template included
+- Supabase sync retained
