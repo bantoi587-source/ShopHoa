@@ -1,17 +1,21 @@
-HOA CO LAU V7.1 - HUONG DAN IMPORT / EXPORT EXCEL
+HOA CO LAU V7.2 - HUONG DAN EXCEL
 
-1. Vao Admin > DU LIEU HOA.
-2. Bam "Xuat Excel (.xlsx)" de tai tat ca mau hoa hien co.
-3. Mo file bang Microsoft Excel / LibreOffice / Google Sheets (sau do tai lai dang .xlsx).
-4. Chinh du lieu trong sheet "MauHoa".
-5. KHONG sua flower_id cua mau hoa cu (vi du HCL-000001).
-6. Them hoa moi: them dong moi va de trong flower_id.
-7. image_url: de trong khi cap nhat hoa cu neu muon giu anh hien tai.
-8. Luu file dang .xlsx.
-9. Quay lai Admin > chon file Excel > Import Excel vao website.
-10. Import se cap nhat / them moi, KHONG tu dong xoa san pham khong co trong file.
+1. Vao Admin > DU LIEU WEBSITE.
+2. "Xuat mau hoa Excel": tai danh sach san pham de chinh va import lai.
+3. "Xuat toan bo data": tai ban sao toan bo du lieu hien tai tren web.
 
-Cac cot trong sheet MauHoa:
-flower_id | name | category | price | description | label | image_url | active | sort_order
+FILE XUAT TOAN BO DATA GOM:
+- TongQuan: tong so san pham, danh muc, hotline va thong tin tong quan.
+- CaiDatWebsite: hotline, Zalo, Facebook, Messenger, banner.
+- DanhMuc: toan bo danh muc.
+- MauHoa: toan bo mau hoa + flower_id + id database + category_id/category_name + gia + anh + trang thai + thoi gian.
+- GhiChu: huong dan va luu y.
+
+IMPORT SAN PHAM:
+- Nút Import Excel hien tai chi import sheet MauHoa.
+- KHONG sua flower_id cua mau hoa cu.
+- Them hoa moi: them dong moi va de trong flower_id.
+- image_url de trong khi cap nhat hoa cu neu muon giu anh hien tai.
+- Import khong tu dong xoa san pham khong co trong file.
 
 File mau: mau-import-hoa-co-lau.xlsx

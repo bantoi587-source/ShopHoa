@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V7.1 - GitHub Pages + Supabase + unique flower IDs + Excel import/export
+// Hoa Cỏ Lau V7.2 - GitHub Pages + Supabase + unique flower IDs + Excel full-data export/import
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -1037,7 +1037,7 @@ document.getElementById("adminSaveProduct")?.addEventListener("click", async () 
 });
 
 
-// ---------------- V7.1: Export / Import Excel dữ liệu hoa ----------------
+// ---------------- V7.2: Export / Import Excel + xuất toàn bộ dữ liệu website ----------------
 function isoDateForFile() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -1049,16 +1049,35 @@ function ensureExcelLibrary() {
   return window.XLSX;
 }
 
+async function fetchAllRowsFromTable(table, orderBy = "id", ascending = true) {
+  const pageSize = 1000;
+  const rows = [];
+  let from = 0;
+
+  while (true) {
+    let query = supabaseClient
+      .from(table)
+      .select("*")
+      .range(from, from + pageSize - 1);
+    if (orderBy) query = query.order(orderBy, { ascending });
+
+    const { data, error } = await query;
+    if (error) throw error;
+    const page = data || [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    from += pageSize;
+  }
+  return rows;
+}
+
 async function fetchTransferData() {
-  const [catRes, prodRes] = await Promise.all([
-    supabaseClient.from("categories").select("*").order("sort_order", { ascending: true }).order("id", { ascending: true }),
-    supabaseClient.from("products").select("*").order("id", { ascending: true })
+  const [categoryRows, rawProductRows] = await Promise.all([
+    fetchAllRowsFromTable("categories", "id", true),
+    fetchAllRowsFromTable("products", "id", true)
   ]);
-  if (catRes.error) throw catRes.error;
-  if (prodRes.error) throw prodRes.error;
-  const categoryRows = catRes.data || [];
   const catMap = new Map(categoryRows.map(c => [Number(c.id), c.name || ""]));
-  const productRows = (prodRes.data || []).map(row => ({
+  const productRows = rawProductRows.map(row => ({
     flower_id: flowerCode(row.id),
     name: row.name || "",
     category: catMap.get(Number(row.category_id)) || "",
@@ -1069,7 +1088,7 @@ async function fetchTransferData() {
     active: row.active !== false,
     sort_order: Number(row.sort_order) || 0
   }));
-  return { productRows, categoryRows };
+  return { productRows, categoryRows, rawProductRows };
 }
 
 function setExcelColumnWidths(ws) {
@@ -1078,6 +1097,152 @@ function setExcelColumnWidths(ws) {
     { wch: 18 }, { wch: 50 }, { wch: 12 }, { wch: 12 }
   ];
   if (ws["!ref"]) ws["!autofilter"] = { ref: ws["!ref"] };
+}
+
+function setAutoExcelColumnWidths(ws, rows, minWidth = 12, maxWidth = 52) {
+  const keys = rows?.length ? Object.keys(rows[0]) : [];
+  ws["!cols"] = keys.map(key => {
+    let width = String(key).length + 2;
+    for (const row of rows.slice(0, 300)) {
+      const value = row?.[key];
+      const text = value == null ? "" : String(value);
+      width = Math.max(width, Math.min(text.length + 2, maxWidth));
+    }
+    return { wch: Math.max(minWidth, Math.min(width, maxWidth)) };
+  });
+  if (ws["!ref"]) ws["!autofilter"] = { ref: ws["!ref"] };
+}
+
+async function exportAllWebsiteDataExcel() {
+  const button = document.getElementById("adminExportAllDataExcel");
+  const oldText = button?.textContent;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Đang lấy toàn bộ data...";
+  }
+
+  try {
+    const XLSX = ensureExcelLibrary();
+    const [settingsRows, categoryRows, productRows] = await Promise.all([
+      fetchAllRowsFromTable("site_settings", "id", true),
+      fetchAllRowsFromTable("categories", "id", true),
+      fetchAllRowsFromTable("products", "id", true)
+    ]);
+
+    const catMap = new Map(categoryRows.map(c => [Number(c.id), c.name || ""]));
+    const productExport = productRows.map(row => ({
+      flower_id: flowerCode(row.id),
+      id: row.id,
+      name: row.name || "",
+      category_id: row.category_id ?? "",
+      category_name: catMap.get(Number(row.category_id)) || "",
+      price: Number(row.price) || 0,
+      description: row.description || "",
+      label: row.label || "",
+      image_url: row.image_url || "",
+      active: row.active !== false,
+      sort_order: Number(row.sort_order) || 0,
+      created_at: row.created_at || "",
+      updated_at: row.updated_at || ""
+    }));
+
+    const categoryExport = categoryRows.map(row => ({
+      id: row.id,
+      name: row.name || "",
+      icon: row.icon || "",
+      description: row.description || "",
+      active: row.active !== false,
+      sort_order: Number(row.sort_order) || 0,
+      created_at: row.created_at || ""
+    }));
+
+    const settingsExport = settingsRows.map(row => ({
+      id: row.id,
+      phone: row.phone || "",
+      zalo_url: row.zalo_url || "",
+      zalo_label: row.zalo_label || "",
+      facebook_url: row.facebook_url || "",
+      facebook_label: row.facebook_label || "",
+      messenger_url: row.messenger_url || "",
+      messenger_label: row.messenger_label || "",
+      banner_url: row.banner_url || "",
+      updated_at: row.updated_at || ""
+    }));
+
+    const now = new Date();
+    const activeProducts = productRows.filter(row => row.active !== false).length;
+    const activeCategories = categoryRows.filter(row => row.active !== false).length;
+    const currentSettings = settingsExport.find(row => Number(row.id) === 1) || settingsExport[0] || {};
+    const overviewRows = [
+      ["HẠNG MỤC", "GIÁ TRỊ"],
+      ["Phiên bản website", "V7.2"],
+      ["Thời điểm xuất", now.toLocaleString("vi-VN")],
+      ["Nguồn dữ liệu", "Supabase - dữ liệu hiện tại trên website"],
+      ["Tổng mẫu hoa", productRows.length],
+      ["Mẫu hoa đang hiển thị", activeProducts],
+      ["Tổng danh mục", categoryRows.length],
+      ["Danh mục đang hiển thị", activeCategories],
+      ["Hotline", currentSettings.phone || ""],
+      ["Tên Zalo", currentSettings.zalo_label || ""],
+      ["Link Zalo", currentSettings.zalo_url || ""],
+      ["Tên Facebook", currentSettings.facebook_label || ""],
+      ["Link Facebook", currentSettings.facebook_url || ""],
+      ["Tên Messenger", currentSettings.messenger_label || ""],
+      ["Link Messenger", currentSettings.messenger_url || ""],
+      ["Banner", currentSettings.banner_url || ""]
+    ];
+
+    const wb = XLSX.utils.book_new();
+
+    const wsOverview = XLSX.utils.aoa_to_sheet(overviewRows);
+    wsOverview["!cols"] = [{ wch: 28 }, { wch: 72 }];
+    XLSX.utils.book_append_sheet(wb, wsOverview, "TongQuan");
+
+    const wsSettings = XLSX.utils.json_to_sheet(settingsExport.length ? settingsExport : [{
+      id: "", phone: "", zalo_url: "", zalo_label: "", facebook_url: "", facebook_label: "",
+      messenger_url: "", messenger_label: "", banner_url: "", updated_at: ""
+    }]);
+    setAutoExcelColumnWidths(wsSettings, settingsExport.length ? settingsExport : [{}], 12, 60);
+    XLSX.utils.book_append_sheet(wb, wsSettings, "CaiDatWebsite");
+
+    const wsCategories = XLSX.utils.json_to_sheet(categoryExport.length ? categoryExport : [{
+      id: "", name: "", icon: "", description: "", active: "", sort_order: "", created_at: ""
+    }]);
+    setAutoExcelColumnWidths(wsCategories, categoryExport.length ? categoryExport : [{}], 12, 48);
+    XLSX.utils.book_append_sheet(wb, wsCategories, "DanhMuc");
+
+    const wsProducts = XLSX.utils.json_to_sheet(productExport.length ? productExport : [{
+      flower_id: "", id: "", name: "", category_id: "", category_name: "", price: "", description: "",
+      label: "", image_url: "", active: "", sort_order: "", created_at: "", updated_at: ""
+    }]);
+    setAutoExcelColumnWidths(wsProducts, productExport.length ? productExport : [{}], 12, 56);
+    XLSX.utils.book_append_sheet(wb, wsProducts, "MauHoa");
+
+    const noteRows = [
+      ["GHI CHÚ", "NỘI DUNG"],
+      ["Mục đích", "File này là bản xuất toàn bộ dữ liệu hiện có trên website tại thời điểm tải."],
+      ["CaiDatWebsite", "Hotline, link/tên Zalo, Facebook, Messenger, banner và thời gian cập nhật."],
+      ["DanhMuc", "Toàn bộ danh mục trong Supabase, kể cả danh mục đang tắt khi tài khoản Admin có quyền đọc."],
+      ["MauHoa", "Toàn bộ mẫu hoa, mã HCL, ID database, danh mục, giá, mô tả, ảnh, trạng thái và thời gian."],
+      ["Import", "Nút Import hiện tại chỉ đọc sheet MauHoa. Không dùng file toàn bộ data để khôi phục CaiDatWebsite/DanhMuc nếu chưa có chức năng Restore toàn bộ."],
+      ["Ảnh", "File Excel lưu URL ảnh, không nhúng file ảnh gốc vào workbook."]
+    ];
+    const wsNotes = XLSX.utils.aoa_to_sheet(noteRows);
+    wsNotes["!cols"] = [{ wch: 22 }, { wch: 90 }];
+    XLSX.utils.book_append_sheet(wb, wsNotes, "GhiChu");
+
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    XLSX.writeFile(wb, `hoa-co-lau-toan-bo-data-${stamp}.xlsx`, { compression: true });
+    showToast(`Đã xuất toàn bộ data: ${productRows.length} mẫu hoa, ${categoryRows.length} danh mục`);
+  } catch (error) {
+    console.error(error);
+    alert(explainSupabaseError(error, "Không thể xuất toàn bộ data website"));
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = oldText || "📦 Xuất toàn bộ data";
+    }
+  }
 }
 
 async function exportProductsExcel() {
@@ -1270,6 +1435,7 @@ function setImportStatus(text, state = "") {
 }
 
 document.getElementById("adminExportExcel")?.addEventListener("click", exportProductsExcel);
+document.getElementById("adminExportAllDataExcel")?.addEventListener("click", exportAllWebsiteDataExcel);
 
 adminImportFile?.addEventListener("change", async () => {
   const file = adminImportFile.files?.[0];
