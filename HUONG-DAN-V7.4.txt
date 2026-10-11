@@ -1,0 +1,10 @@
+V7.4 - SUA LOI GIAO DIEN KHONG AP DUNG
+
+1. Neu da chay SUPABASE-MIGRATION-V7.3.sql thi KHONG can chay SQL moi.
+2. Upload/ghi de index.html, styles.css, script.js len root GitHub Pages.
+3. Mo Admin > GIAO DIEN.
+4. Chon mau/logo/hinh dich vu: trang chinh se xem truoc thay doi ngay.
+5. Bam "Luu giao dien website" de ghi Supabase.
+6. Thong bao thanh cong: "Da luu & ap dung giao dien Supabase...".
+7. Tren dien thoai cho toi da 8 giay hoac mo lai tab; V7.4 co cache-bust anh.
+8. Neu logo/hinh khong tai duoc, kiem tra bucket shop-images la Public va policy upload Admin dung UUID.

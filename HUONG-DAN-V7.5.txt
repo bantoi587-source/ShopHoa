@@ -1,0 +1,8 @@
+V7.5 - THONG BAO KET QUA THAO TAC ADMIN
+
+1. Moi thao tac quan tri quan trong se hien mot bang thong bao o dau man hinh Admin.
+2. Mau xanh: thanh cong. Mau vang: canh bao/du lieu chua hop le. Mau do: loi.
+3. Loi co kem goi y xu ly: Internet, RLS, Admin UUID, Storage bucket, migration, file Excel/anh.
+4. Cac thao tac duoc bao gom: dang nhap, luu/cai dat, giao dien, danh muc, san pham, import/export Excel, khoi phuc mau.
+5. Thong bao loi se giu nguyen cho den khi bam X; thong bao thanh cong tu dong an sau vai giay.
+6. Upload cac file V7.5 len root GitHub va nhan Ctrl+F5.

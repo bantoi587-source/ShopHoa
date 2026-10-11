@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V7.3 - Supabase + Excel + editable theme/logo/service image
+// Hoa Cỏ Lau V7.5 - Supabase + Excel + Admin result/error notifications
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -50,7 +50,8 @@ const defaultSiteSettings = {
   banner: "assets/banner-hoa-co-lau.webp",
   backgroundColor: "#fffdf8",
   logo: "",
-  serviceImage: ""
+  serviceImage: "",
+  updatedAt: ""
 };
 
 const defaultCategories = [
@@ -142,6 +143,90 @@ function showToast(message) {
   window.__toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
 }
 
+function showAdminNotice(type = "info", title = "Thông báo", message = "", hint = "", options = {}) {
+  const wrap = document.getElementById("adminNoticeWrap");
+  const box = document.getElementById("adminNotice");
+  const icon = document.getElementById("adminNoticeIcon");
+  const titleEl = document.getElementById("adminNoticeTitle");
+  const messageEl = document.getElementById("adminNoticeMessage");
+  const hintEl = document.getElementById("adminNoticeHint");
+  if (!wrap || !box || !titleEl || !messageEl) {
+    if (type === "error") console.error(title, message, hint);
+    return;
+  }
+  const normalized = ["success","error","warning","info"].includes(type) ? type : "info";
+  const iconMap = { success:"✓", error:"!", warning:"!", info:"i" };
+  box.dataset.type = normalized;
+  if (icon) icon.textContent = iconMap[normalized];
+  titleEl.textContent = title;
+  messageEl.textContent = message || "";
+  if (hintEl) {
+    hintEl.textContent = hint || "";
+    hintEl.hidden = !hint;
+  }
+  wrap.hidden = false;
+  clearTimeout(window.__adminNoticeTimer);
+  const timeout = options.timeout ?? (normalized === "success" ? 5500 : normalized === "info" ? 6500 : 0);
+  if (timeout > 0) window.__adminNoticeTimer = setTimeout(() => { wrap.hidden = true; }, timeout);
+  if (options.scroll !== false) wrap.scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+function hideAdminNotice() {
+  const wrap = document.getElementById("adminNoticeWrap");
+  if (wrap) wrap.hidden = true;
+  clearTimeout(window.__adminNoticeTimer);
+}
+
+document.getElementById("adminNoticeClose")?.addEventListener("click", hideAdminNotice);
+
+function adminErrorInfo(error, context = "Thao tác thất bại") {
+  const raw = String(error?.message || error || "Không xác định");
+  const lower = raw.toLowerCase();
+  let message = explainSupabaseError(error, context);
+  let hint = "Hãy thử tải lại trang và thực hiện lại thao tác.";
+  if (/failed to fetch|network|load failed|networkerror|fetch/i.test(raw)) {
+    message = `${context}: không kết nối được tới Supabase.`;
+    hint = "Kiểm tra Internet, URL Project Supabase và thử lại. Nếu GitHub Pages vừa cập nhật, hãy Ctrl+F5 hoặc mở tab ẩn danh.";
+  } else if (/invalid login credentials|email not confirmed|invalid_credentials/i.test(raw)) {
+    message = `${context}: email hoặc mật khẩu Admin không đúng.`;
+    hint = "Kiểm tra tài khoản trong Supabase → Authentication → Users. Nếu bật xác nhận email, hãy xác nhận email trước.";
+  } else if (/row-level security|policy|permission denied|42501/i.test(raw)) {
+    message = `${context}: Supabase từ chối quyền ghi dữ liệu.`;
+    hint = "Kiểm tra RLS policy và Admin UUID trong Supabase. Tài khoản đang đăng nhập phải đúng Admin UUID được cấp quyền.";
+  } else if (/bucket not found/i.test(raw)) {
+    message = `${context}: không tìm thấy bucket shop-images.`;
+    hint = "Vào Supabase → Storage, tạo bucket shop-images và kiểm tra policy upload cho Admin.";
+  } else if (/storage|object.*policy|new row violates row-level security/i.test(raw)) {
+    message = `${context}: không thể tải ảnh lên Supabase Storage.`;
+    hint = "Kiểm tra bucket shop-images, Storage policies, quyền INSERT/UPDATE và tài khoản Admin hiện tại.";
+  } else if (/background_color|logo_url|service_image_url|column|schema cache/i.test(raw)) {
+    message = `${context}: database chưa có đủ cột giao diện.`;
+    hint = "Chạy SUPABASE-MIGRATION-V7.3.sql trong Supabase SQL Editor, chờ vài giây rồi thử lại.";
+  } else if (/relation .* does not exist|could not find the table/i.test(raw)) {
+    hint = "Kiểm tra các bảng site_settings, categories và products đã được tạo trong schema public.";
+  } else if (/duplicate key|already exists|unique constraint/i.test(raw)) {
+    message = `${context}: dữ liệu bị trùng với bản ghi đã có.`;
+    hint = "Kiểm tra tên danh mục, mã/ID hoặc dữ liệu import trùng trước khi thử lại.";
+  } else if (/file|image|webp|jpeg|png|xlsx|excel/i.test(lower)) {
+    hint = "Kiểm tra định dạng file, dung lượng và thử chọn lại file. Ảnh nên dùng JPG/PNG/WebP; dữ liệu dùng .xlsx/.xls.";
+  }
+  return { message, hint, raw };
+}
+
+function showAdminError(error, context = "Thao tác thất bại") {
+  const info = adminErrorInfo(error, context);
+  showAdminNotice("error", context, info.message, info.hint, { timeout: 0 });
+  return info;
+}
+
+function showAdminSuccess(title, message, hint = "") {
+  showAdminNotice("success", title, message, hint, { timeout: 5500 });
+}
+
+function showAdminWarning(title, message, hint = "") {
+  showAdminNotice("warning", title, message, hint, { timeout: 0 });
+}
+
 function explainSupabaseError(error, fallback = "Có lỗi xảy ra") {
   if (!error) return fallback;
   const message = error.message || String(error);
@@ -177,6 +262,100 @@ function mixHexColor(base, target = "#ffffff", amount = 0.72) {
   return `#${[mix(ar,br),mix(ag,bg),mix(ab,bb)].map(n => n.toString(16).padStart(2,"0")).join("")}`;
 }
 
+function versionedAssetUrl(url = "", version = "") {
+  const raw = String(url || "").trim();
+  if (!raw || raw.startsWith("blob:") || raw.startsWith("data:")) return raw;
+  const v = encodeURIComponent(String(version || "1"));
+  return `${raw}${raw.includes("?") ? "&" : "?"}hclv=${v}`;
+}
+
+function applyBackgroundTheme(color) {
+  const bg = normalizeHexColor(color) || defaultSiteSettings.backgroundColor;
+  const soft = mixHexColor(bg, "#ffffff", 0.72);
+  const headerBg = mixHexColor(bg, "#ffffff", 0.90);
+
+  document.documentElement.style.setProperty("--site-bg", bg);
+  document.documentElement.style.setProperty("--site-bg-soft", soft);
+  document.body.style.backgroundColor = bg;
+
+  const directBackgrounds = [
+    [document.querySelector(".banner-section"), bg],
+    [document.getElementById("categories"), bg],
+    [document.querySelector(".testimonials"), bg],
+    [document.querySelector(".products-section"), soft]
+  ];
+  directBackgrounds.forEach(([el, value]) => { if (el) el.style.backgroundColor = value; });
+
+  const hero = document.querySelector(".hero-copy");
+  if (hero) hero.style.background = `linear-gradient(180deg, ${soft} 0%, ${bg} 100%)`;
+
+  const header = document.querySelector(".header");
+  if (header) header.style.backgroundColor = headerBg;
+
+  const themeMeta = document.getElementById("browserThemeColor");
+  if (themeMeta) themeMeta.setAttribute("content", bg);
+}
+
+function applyLogoToHeader(url = "", version = "") {
+  const headerLogo = document.getElementById("headerLogo");
+  const headerBrandMark = document.getElementById("headerBrandMark");
+  if (!headerLogo || !headerBrandMark) return;
+
+  const raw = String(url || "").trim();
+  if (raw) {
+    headerLogo.src = versionedAssetUrl(raw, version);
+    headerLogo.removeAttribute("hidden");
+    headerLogo.style.setProperty("display", "block", "important");
+    headerBrandMark.setAttribute("hidden", "");
+    headerBrandMark.style.setProperty("display", "none", "important");
+    headerLogo.onerror = () => {
+      console.error("Không tải được logo:", headerLogo.src);
+      headerLogo.setAttribute("hidden", "");
+      headerLogo.style.removeProperty("display");
+      headerBrandMark.removeAttribute("hidden");
+      headerBrandMark.style.removeProperty("display");
+    };
+  } else {
+    headerLogo.removeAttribute("src");
+    headerLogo.setAttribute("hidden", "");
+    headerLogo.style.removeProperty("display");
+    headerBrandMark.removeAttribute("hidden");
+    headerBrandMark.style.removeProperty("display");
+  }
+}
+
+function applyServiceImageToPage(url = "", version = "") {
+  const serviceImage = document.getElementById("serviceImage");
+  const weddingArt = document.getElementById("weddingArt");
+  const weddingArtDecor = document.getElementById("weddingArtDecor");
+  if (!serviceImage || !weddingArt || !weddingArtDecor) return;
+
+  const raw = String(url || "").trim();
+  if (raw) {
+    serviceImage.src = versionedAssetUrl(raw, version);
+    serviceImage.removeAttribute("hidden");
+    serviceImage.style.setProperty("display", "block", "important");
+    weddingArtDecor.setAttribute("hidden", "");
+    weddingArtDecor.style.setProperty("display", "none", "important");
+    weddingArt.classList.add("image-mode");
+    serviceImage.onerror = () => {
+      console.error("Không tải được hình dịch vụ:", serviceImage.src);
+      serviceImage.setAttribute("hidden", "");
+      serviceImage.style.removeProperty("display");
+      weddingArtDecor.removeAttribute("hidden");
+      weddingArtDecor.style.removeProperty("display");
+      weddingArt.classList.remove("image-mode");
+    };
+  } else {
+    serviceImage.removeAttribute("src");
+    serviceImage.setAttribute("hidden", "");
+    serviceImage.style.removeProperty("display");
+    weddingArtDecor.removeAttribute("hidden");
+    weddingArtDecor.style.removeProperty("display");
+    weddingArt.classList.remove("image-mode");
+  }
+}
+
 function mapSettingsRow(row) {
   if (!row) return { ...defaultSiteSettings };
   return {
@@ -190,7 +369,8 @@ function mapSettingsRow(row) {
     banner: row.banner_url || defaultSiteSettings.banner,
     backgroundColor: normalizeHexColor(row.background_color) || defaultSiteSettings.backgroundColor,
     logo: row.logo_url || "",
-    serviceImage: row.service_image_url || ""
+    serviceImage: row.service_image_url || "",
+    updatedAt: row.updated_at || ""
   };
 }
 
@@ -372,39 +552,9 @@ function applySiteSettings() {
   if (banner) banner.src = siteSettings.banner || defaultSiteSettings.banner;
 
   const bg = normalizeHexColor(siteSettings.backgroundColor) || defaultSiteSettings.backgroundColor;
-  document.documentElement.style.setProperty("--site-bg", bg);
-  document.documentElement.style.setProperty("--site-bg-soft", mixHexColor(bg, "#ffffff", 0.72));
-
-  const headerLogo = document.getElementById("headerLogo");
-  const headerBrandMark = document.getElementById("headerBrandMark");
-  if (headerLogo && headerBrandMark) {
-    if (siteSettings.logo) {
-      headerLogo.src = siteSettings.logo;
-      headerLogo.hidden = false;
-      headerBrandMark.hidden = true;
-    } else {
-      headerLogo.removeAttribute("src");
-      headerLogo.hidden = true;
-      headerBrandMark.hidden = false;
-    }
-  }
-
-  const serviceImage = document.getElementById("serviceImage");
-  const weddingArt = document.getElementById("weddingArt");
-  const weddingArtDecor = document.getElementById("weddingArtDecor");
-  if (serviceImage && weddingArt && weddingArtDecor) {
-    if (siteSettings.serviceImage) {
-      serviceImage.src = siteSettings.serviceImage;
-      serviceImage.hidden = false;
-      weddingArtDecor.hidden = true;
-      weddingArt.classList.add("image-mode");
-    } else {
-      serviceImage.removeAttribute("src");
-      serviceImage.hidden = true;
-      weddingArtDecor.hidden = false;
-      weddingArt.classList.remove("image-mode");
-    }
-  }
+  applyBackgroundTheme(bg);
+  applyLogoToHeader(siteSettings.logo, siteSettings.updatedAt);
+  applyServiceImageToPage(siteSettings.serviceImage, siteSettings.updatedAt);
 
   const configs = [
     { selector: "[data-zalo-link]", textSelector: "[data-zalo-text]", row: "contactZaloRow", url: effectiveZaloUrl(), label: "Zalo", display: siteSettings.zaloName || defaultSiteSettings.zaloName },
@@ -695,7 +845,7 @@ document.getElementById("adminLoginBtn")?.addEventListener("click", async () => 
   const email = adminEmail.value.trim();
   const password = adminPassword.value;
   if (!email || !password) {
-    alert("Vui lòng nhập email và mật khẩu Admin đã tạo trong Supabase Authentication.");
+    showAdminWarning("Thiếu thông tin đăng nhập", "Vui lòng nhập email và mật khẩu Admin đã tạo trong Supabase Authentication.", "Kiểm tra tài khoản tại Supabase → Authentication → Users.");
     return;
   }
 
@@ -707,7 +857,7 @@ document.getElementById("adminLoginBtn")?.addEventListener("click", async () => 
   button.textContent = "Đăng nhập";
 
   if (error || !data.user) {
-    alert(`Đăng nhập thất bại: ${error?.message || "Không xác định"}`);
+    showAdminError(error || new Error("Không xác định"), "Đăng nhập thất bại");
     return;
   }
 
@@ -721,6 +871,7 @@ document.getElementById("adminLoginBtn")?.addEventListener("click", async () => 
   renderAdminCategories();
   renderAdminProducts();
   renderAdminCategoryOptions();
+  showAdminSuccess("Đăng nhập thành công", "Đã kết nối Supabase và tải dữ liệu quản trị.");
   showToast("Đăng nhập Admin thành công");
 });
 
@@ -798,10 +949,16 @@ adminBanner?.addEventListener("change", () => {
 
 adminBackgroundColor?.addEventListener("input", () => {
   if (adminBackgroundColorText) adminBackgroundColorText.value = adminBackgroundColor.value;
+  applyBackgroundTheme(adminBackgroundColor.value);
+  updateSyncStatus("Đang xem trước màu nền — bấm Lưu giao diện để đồng bộ", "local");
 });
 adminBackgroundColorText?.addEventListener("input", () => {
   const color = normalizeHexColor(adminBackgroundColorText.value);
-  if (color && adminBackgroundColor) adminBackgroundColor.value = color;
+  if (color) {
+    if (adminBackgroundColor) adminBackgroundColor.value = color;
+    applyBackgroundTheme(color);
+    updateSyncStatus("Đang xem trước màu nền — bấm Lưu giao diện để đồng bộ", "local");
+  }
 });
 
 adminLogo?.addEventListener("change", () => {
@@ -811,6 +968,8 @@ adminLogo?.addEventListener("change", () => {
   removeLogoRequested = false;
   const url = URL.createObjectURL(file);
   if (adminLogoPreview) adminLogoPreview.innerHTML = `<img src="${url}" alt="Xem trước logo">`;
+  applyLogoToHeader(url, "preview");
+  updateSyncStatus("Đang xem trước logo — bấm Lưu giao diện để đồng bộ", "local");
 });
 
 adminServiceImage?.addEventListener("change", () => {
@@ -820,6 +979,8 @@ adminServiceImage?.addEventListener("change", () => {
   removeServiceImageRequested = false;
   const url = URL.createObjectURL(file);
   if (adminServiceImagePreview) adminServiceImagePreview.innerHTML = `<img src="${url}" alt="Xem trước hình dịch vụ">`;
+  applyServiceImageToPage(url, "preview");
+  updateSyncStatus("Đang xem trước hình dịch vụ — bấm Lưu giao diện để đồng bộ", "local");
 });
 
 document.getElementById("adminRemoveLogo")?.addEventListener("click", () => {
@@ -827,6 +988,8 @@ document.getElementById("adminRemoveLogo")?.addEventListener("click", () => {
   removeLogoRequested = true;
   if (adminLogo) adminLogo.value = "";
   if (adminLogoPreview) adminLogoPreview.innerHTML = `<span>Logo riêng sẽ được xóa sau khi bấm Lưu giao diện</span>`;
+  applyLogoToHeader("", "preview");
+  updateSyncStatus("Đang xem trước việc xóa logo — bấm Lưu giao diện để đồng bộ", "local");
 });
 
 document.getElementById("adminRemoveServiceImage")?.addEventListener("click", () => {
@@ -834,6 +997,8 @@ document.getElementById("adminRemoveServiceImage")?.addEventListener("click", ()
   removeServiceImageRequested = true;
   if (adminServiceImage) adminServiceImage.value = "";
   if (adminServiceImagePreview) adminServiceImagePreview.innerHTML = `<span>Hình dịch vụ riêng sẽ được xóa sau khi bấm Lưu giao diện</span>`;
+  applyServiceImageToPage("", "preview");
+  updateSyncStatus("Đang xem trước việc xóa hình dịch vụ — bấm Lưu giao diện để đồng bộ", "local");
 });
 
 async function optimizeImage(file, maxDimension = 1800, quality = 0.86) {
@@ -888,7 +1053,7 @@ document.getElementById("adminSaveAppearance")?.addEventListener("click", async 
   const button = document.getElementById("adminSaveAppearance");
   const color = normalizeHexColor(adminBackgroundColorText?.value || adminBackgroundColor?.value || "");
   if (!color) {
-    alert("Màu nền không hợp lệ. Hãy nhập dạng #RRGGBB, ví dụ #fff7f8.");
+    showAdminWarning("Màu nền không hợp lệ", "Hãy nhập mã màu dạng #RRGGBB, ví dụ #fff7f8.", "Bạn có thể dùng ô chọn màu bên cạnh để tránh nhập sai.");
     return;
   }
 
@@ -920,23 +1085,30 @@ document.getElementById("adminSaveAppearance")?.addEventListener("click", async 
       service_image_url: serviceImageUrl,
       updated_at: new Date().toISOString()
     };
-    const { data, error } = await supabaseClient.from("site_settings").update(payload).eq("id", 1).select().maybeSingle();
+    const { data, error } = await supabaseClient.from("site_settings").update(payload).eq("id", 1).select("*").single();
     if (error) throw error;
     if (!data) throw new Error("Không tìm thấy dòng site_settings có id = 1.");
 
-    siteSettings = mapSettingsRow(data);
-    lastSettingsUpdatedAt = data.updated_at || lastSettingsUpdatedAt;
+    // Đọc lại từ Supabase để chắc chắn trang khách dùng đúng dữ liệu vừa lưu.
+    const verify = await supabaseClient.from("site_settings").select("*").eq("id", 1).single();
+    if (verify.error) throw verify.error;
+    const saved = verify.data || data;
+
+    siteSettings = mapSettingsRow(saved);
+    lastSettingsUpdatedAt = saved.updated_at || lastSettingsUpdatedAt;
     applySiteSettings();
     populateAdminSettings();
-    updateSyncStatus("Đã lưu giao diện Supabase — mọi thiết bị sẽ nhận thay đổi", "online");
-    showToast("Đã lưu màu nền, logo và hình dịch vụ");
+    updateSyncStatus("Đã lưu & áp dụng giao diện Supabase — mọi thiết bị dùng chung", "online");
+    showAdminSuccess("Cập nhật giao diện thành công", "Màu nền, logo và hình dịch vụ đã được lưu lên Supabase và áp dụng trên website.", "Thiết bị khác sẽ nhận thay đổi sau khi đồng bộ/tải lại trang.");
+    showToast("Đã áp dụng màu nền, logo và hình dịch vụ");
   } catch (error) {
     console.error(error);
+    applySiteSettings(); // hoàn tác phần xem trước nếu lưu thất bại
     const msg = String(error?.message || error || "");
     if (/background_color|logo_url|service_image_url|column/i.test(msg)) {
-      alert("Supabase chưa có cột giao diện V7.3. Hãy chạy file SUPABASE-MIGRATION-V7.3.sql trong SQL Editor rồi thử lại.\n\n" + msg);
+      showAdminError(error, "Lưu giao diện thất bại");
     } else {
-      alert(explainSupabaseError(error, "Không thể lưu giao diện"));
+      showAdminError(error, "Không thể lưu giao diện");
     }
   } finally {
     button.disabled = false;
@@ -958,13 +1130,14 @@ document.getElementById("adminResetAppearance")?.addEventListener("click", async
     siteSettings = mapSettingsRow(data);
     applySiteSettings();
     populateAdminSettings();
+    showAdminSuccess("Khôi phục giao diện thành công", "Màu nền, logo và hình dịch vụ đã trở về mặc định.");
     showToast("Đã khôi phục giao diện mặc định");
   } catch (error) {
     const msg = String(error?.message || error || "");
     if (/background_color|logo_url|service_image_url|column/i.test(msg)) {
-      alert("Hãy chạy SUPABASE-MIGRATION-V7.3.sql trước khi dùng chức năng giao diện mới.");
+      showAdminError(error, "Khôi phục giao diện thất bại");
     } else {
-      alert(explainSupabaseError(error, "Không thể khôi phục giao diện"));
+      showAdminError(error, "Không thể khôi phục giao diện");
     }
   }
 });
@@ -972,7 +1145,7 @@ document.getElementById("adminResetAppearance")?.addEventListener("click", async
 document.getElementById("adminSaveSettings")?.addEventListener("click", async () => {
   const phone = adminPhone.value.trim();
   if (!phoneDigits(phone)) {
-    alert("Bạn chưa nhập số điện thoại hợp lệ.");
+    showAdminWarning("Số điện thoại chưa hợp lệ", "Bạn chưa nhập số điện thoại hợp lệ.", "Hãy nhập ít nhất một số điện thoại có chữ số, ví dụ 0353724232.");
     return;
   }
 
@@ -1008,11 +1181,12 @@ document.getElementById("adminSaveSettings")?.addEventListener("click", async ()
     applySiteSettings();
     populateAdminSettings();
     updateSyncStatus("Đã lưu Supabase — thiết bị khác sẽ tự cập nhật trong vài giây", "online");
+    showAdminSuccess("Cập nhật website thành công", "Hotline, Zalo, Facebook, Messenger và banner đã được lưu lên Supabase.", "Điện thoại và thiết bị khác sẽ tự nhận dữ liệu mới sau vài giây hoặc khi tải lại trang.");
     showToast("Đã lưu và đồng bộ cài đặt website");
   } catch (error) {
     console.error(error);
     updateSyncStatus("Lưu Supabase thất bại", "offline");
-    alert(explainSupabaseError(error, "Không thể lưu cài đặt"));
+    showAdminError(error, "Không thể lưu cài đặt website");
   } finally {
     button.disabled = false;
     button.textContent = "Lưu cài đặt website";
@@ -1038,9 +1212,10 @@ document.getElementById("adminResetSettings")?.addEventListener("click", async (
     siteSettings = mapSettingsRow(data);
     applySiteSettings();
     populateAdminSettings();
+    showAdminSuccess("Khôi phục cài đặt thành công", "Hotline, liên hệ và banner đã được đưa về mặc định.");
     showToast("Đã khôi phục cài đặt");
   } catch (error) {
-    alert(explainSupabaseError(error, "Không thể khôi phục cài đặt"));
+    showAdminError(error, "Không thể khôi phục cài đặt website");
   }
 });
 
@@ -1067,12 +1242,12 @@ function renderAdminCategories() {
 async function addAdminCategory() {
   const name = adminCategoryName.value.trim();
   if (!name) {
-    alert("Bạn chưa nhập tên danh mục.");
+    showAdminWarning("Thiếu tên danh mục", "Bạn chưa nhập tên danh mục.", "Nhập tên danh mục rồi thử lại.");
     adminCategoryName.focus();
     return;
   }
   if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-    alert("Danh mục này đã tồn tại.");
+    showAdminWarning("Danh mục đã tồn tại", "Tên danh mục này đã có trên website.", "Hãy dùng tên khác hoặc sử dụng danh mục hiện có.");
     return;
   }
 
@@ -1087,7 +1262,7 @@ async function addAdminCategory() {
 
   const { error } = await supabaseClient.from("categories").insert(payload);
   if (error) {
-    alert(explainSupabaseError(error, "Không thể thêm danh mục"));
+    showAdminError(error, "Không thể thêm danh mục");
     return;
   }
 
@@ -1095,6 +1270,7 @@ async function addAdminCategory() {
   adminCategoryIcon.value = "";
   adminCategoryDesc.value = "";
   await loadPublicData({ silent: true });
+  showAdminSuccess("Thêm danh mục thành công", `Danh mục "${name}" đã được lưu lên Supabase.`);
   showToast("Đã thêm danh mục mới");
 }
 
@@ -1103,17 +1279,18 @@ async function deleteAdminCategory(id) {
   if (!category || String(id).startsWith("local-")) return;
   const count = products.filter(p => String(p.category) === String(id)).length;
   if (count) {
-    alert(`Danh mục \"${category.name}\" đang có ${count} sản phẩm. Hãy chuyển sản phẩm sang danh mục khác trước.`);
+    showAdminWarning("Không thể xóa danh mục", `Danh mục "${category.name}" đang có ${count} sản phẩm.`, "Hãy chuyển các sản phẩm sang danh mục khác trước rồi xóa lại.");
     return;
   }
   if (!confirm(`Xóa danh mục \"${category.name}\"?`)) return;
   const { error } = await supabaseClient.from("categories").delete().eq("id", Number(id));
   if (error) {
-    alert(explainSupabaseError(error, "Không thể xóa danh mục"));
+    showAdminError(error, "Không thể xóa danh mục");
     return;
   }
   await loadPublicData({ silent: true });
   clearAdminForm();
+  showAdminSuccess("Xóa danh mục thành công", `Danh mục "${category.name}" đã được xóa khỏi Supabase.`);
   showToast("Đã xóa danh mục");
 }
 
@@ -1192,13 +1369,14 @@ async function deleteAdminProduct(id) {
   if (!confirm(`Xóa sản phẩm \"${p.name}\"?`)) return;
   const { error } = await supabaseClient.from("products").delete().eq("id", id);
   if (error) {
-    alert(explainSupabaseError(error, "Không thể xóa sản phẩm"));
+    showAdminError(error, "Không thể xóa sản phẩm");
     return;
   }
   cart = cart.filter(x => x.id !== id);
   saveCart();
   await loadPublicData({ silent: true });
   clearAdminForm();
+  showAdminSuccess("Xóa sản phẩm thành công", `Sản phẩm "${p.name}" đã được xóa khỏi website.`);
   showToast("Đã xóa sản phẩm");
 }
 
@@ -1207,15 +1385,15 @@ document.getElementById("adminSaveProduct")?.addEventListener("click", async () 
   const price = Number(adminPrice.value);
   const categoryId = Number(adminCategory.value);
   if (!name) {
-    alert("Bạn chưa nhập tên sản phẩm.");
+    showAdminWarning("Thiếu tên sản phẩm", "Bạn chưa nhập tên sản phẩm.", "Nhập tên mẫu hoa trước khi lưu.");
     return;
   }
   if (!Number.isFinite(price) || price < 0) {
-    alert("Giá sản phẩm chưa hợp lệ.");
+    showAdminWarning("Giá sản phẩm chưa hợp lệ", "Giá phải là số từ 0 trở lên.", "Ví dụ: 350000.");
     return;
   }
   if (!Number.isFinite(categoryId) || categoryId <= 0) {
-    alert("Bạn cần có danh mục Supabase trước khi lưu sản phẩm. Nếu đang thấy danh mục mẫu cục bộ, hãy thêm danh mục mới trong Admin hoặc chạy SQL tạo danh mục mặc định.");
+    showAdminWarning("Chưa có danh mục Supabase", "Không thể lưu sản phẩm vì chưa chọn được danh mục hợp lệ.", "Hãy thêm danh mục mới trong Admin hoặc chạy SQL tạo danh mục mặc định.");
     return;
   }
 
@@ -1259,10 +1437,11 @@ document.getElementById("adminSaveProduct")?.addEventListener("click", async () 
 
     await loadPublicData({ silent: true });
     clearAdminForm();
+    showAdminSuccess(id ? "Cập nhật sản phẩm thành công" : "Thêm sản phẩm thành công", savedId ? `${flowerCode(savedId)} - ${name} đã được lưu lên Supabase.` : `${name} đã được lưu lên Supabase.`);
     showToast(savedId ? `Đã lưu ${flowerCode(savedId)} lên Supabase` : "Đã lưu sản phẩm lên Supabase");
   } catch (error) {
     console.error(error);
-    alert(explainSupabaseError(error, "Không thể lưu sản phẩm"));
+    showAdminError(error, "Không thể lưu sản phẩm");
   } finally {
     button.disabled = false;
     button.textContent = "Lưu sản phẩm";
@@ -1411,7 +1590,7 @@ async function exportAllWebsiteDataExcel() {
     const currentSettings = settingsExport.find(row => Number(row.id) === 1) || settingsExport[0] || {};
     const overviewRows = [
       ["HẠNG MỤC", "GIÁ TRỊ"],
-      ["Phiên bản website", "V7.3"],
+      ["Phiên bản website", "V7.5"],
       ["Thời điểm xuất", now.toLocaleString("vi-VN")],
       ["Nguồn dữ liệu", "Supabase - dữ liệu hiện tại trên website"],
       ["Tổng mẫu hoa", productRows.length],
@@ -1472,10 +1651,11 @@ async function exportAllWebsiteDataExcel() {
 
     const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     XLSX.writeFile(wb, `hoa-co-lau-toan-bo-data-${stamp}.xlsx`, { compression: true });
+    showAdminSuccess("Xuất toàn bộ data thành công", `Đã tạo file Excel gồm ${productRows.length} mẫu hoa và ${categoryRows.length} danh mục.`);
     showToast(`Đã xuất toàn bộ data: ${productRows.length} mẫu hoa, ${categoryRows.length} danh mục`);
   } catch (error) {
     console.error(error);
-    alert(explainSupabaseError(error, "Không thể xuất toàn bộ data website"));
+    showAdminError(error, "Không thể xuất toàn bộ data website");
   } finally {
     if (button) {
       button.disabled = false;
@@ -1530,9 +1710,10 @@ async function exportProductsExcel() {
     XLSX.utils.book_append_sheet(wb, wsGuide, "HuongDan");
 
     XLSX.writeFile(wb, `hoa-co-lau-${isoDateForFile()}.xlsx`, { compression: true });
+    showAdminSuccess("Xuất Excel thành công", `Đã xuất ${productRows.length} mẫu hoa ra file Excel.`);
     showToast(`Đã xuất ${productRows.length} mẫu hoa ra Excel`);
   } catch (error) {
-    alert(explainSupabaseError(error, "Không thể xuất Excel"));
+    showAdminError(error, "Không thể xuất Excel");
   }
 }
 
@@ -1688,6 +1869,7 @@ adminImportFile?.addEventListener("change", async () => {
   } catch (error) {
     adminImportBtn.disabled = true;
     setImportStatus(`Không đọc được file Excel: ${error.message || error}`, "warn");
+    showAdminError(error, "Không đọc được file Excel");
   }
 });
 
@@ -1703,11 +1885,17 @@ adminImportBtn?.addEventListener("click", async () => {
     await loadPublicData({ silent: true });
     const details = result.errors.length ? `\nLỗi/bỏ qua đầu tiên:\n${result.errors.slice(0, 5).join("\n")}` : "";
     setImportStatus(`Hoàn tất ${result.total} dòng: cập nhật ${result.updated}, thêm mới ${result.added}, bỏ qua/lỗi ${result.skipped}.${details}`, result.skipped ? "warn" : "ok");
+    if (result.skipped) {
+      showAdminWarning("Import Excel hoàn tất nhưng có lỗi", `Đã xử lý ${result.total} dòng: cập nhật ${result.updated}, thêm mới ${result.added}, lỗi/bỏ qua ${result.skipped}.`, result.errors.slice(0, 5).join("\n") || "Mở trạng thái Import để xem chi tiết.");
+    } else {
+      showAdminSuccess("Import Excel thành công", `Đã xử lý ${result.total} dòng: cập nhật ${result.updated}, thêm mới ${result.added}, không có lỗi.`);
+    }
     showToast("Import Excel dữ liệu hoa hoàn tất");
     adminImportFile.value = "";
   } catch (error) {
     console.error(error);
     setImportStatus(explainSupabaseError(error, "Import Excel thất bại"), "warn");
+    showAdminError(error, "Import Excel thất bại");
   } finally {
     adminImportBtn.disabled = false;
     adminImportBtn.textContent = "Import Excel vào website";
@@ -1760,9 +1948,10 @@ document.getElementById("adminResetSamples")?.addEventListener("click", async ()
     if (insertError) throw insertError;
     await loadPublicData({ silent: true });
     clearAdminForm();
+    showAdminSuccess("Khôi phục sản phẩm mẫu thành công", "Bộ sản phẩm mẫu đã được ghi lại lên Supabase.");
     showToast("Đã khôi phục sản phẩm mẫu lên Supabase");
   } catch (error) {
-    alert(explainSupabaseError(error, "Không thể khôi phục sản phẩm mẫu"));
+    showAdminError(error, "Không thể khôi phục sản phẩm mẫu");
   }
 });
 

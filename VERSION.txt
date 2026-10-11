@@ -1,6 +1,2 @@
-Hoa Co Lau V7.3
-- Admin chinh mau nen website
-- Admin upload/xoa logo dau trang
-- Admin upload/xoa hinh phan dich vu cuoi hoi
-- Dong bo Supabase moi thiet bi
-- Export toan bo data Excel co them cac truong giao dien
+Hoa Co Lau Website V7.5
+Admin notifications: success, warning and detailed error guidance after management actions.

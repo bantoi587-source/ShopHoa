@@ -687,3 +687,60 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 .admin-service-preview img { width:100%; max-height:220px; object-fit:cover; display:block; border-radius:10px; }
 @media (max-width:640px) { .brand-logo{width:40px;height:40px}.admin-color-row{grid-template-columns:64px 1fr}.admin-color-row input[type="color"]{width:64px} }
 .admin-migration-note { margin:10px 0 0; padding:10px 12px; border-radius:12px; background:#fff7dc; color:#735a1c; font-size:12px; line-height:1.5; border:1px solid #f0d889; }
+
+/* V7.4 - áp dụng giao diện rõ ràng trên toàn trang */
+#categories { background: var(--site-bg); }
+.header { transition: background-color .2s ease; }
+.banner-section, .hero-copy, #categories, .products-section, .testimonials { transition: background-color .2s ease, background .2s ease; }
+.brand-logo { max-width: 160px; width: auto; min-width: 44px; height: 52px; object-fit: contain; }
+.wedding-service-image { min-width: 100%; min-height: 100%; }
+@media (max-width: 640px) {
+  .brand-logo { max-width: 112px; width: auto; height: 42px; }
+}
+
+
+/* V7.5 - Trung tâm thông báo thao tác Admin */
+.admin-notice-wrap {
+  position: sticky;
+  top: 82px;
+  z-index: 8;
+  max-width: 1180px;
+  margin: 14px auto 0;
+  padding: 0 18px;
+}
+.admin-notice-wrap[hidden] { display:none !important; }
+.admin-notice {
+  display:grid;
+  grid-template-columns: 40px minmax(0,1fr) 34px;
+  gap:12px;
+  align-items:start;
+  border:1px solid #d8e1e8;
+  border-left-width:5px;
+  border-radius:14px;
+  background:#fff;
+  padding:13px 14px;
+  box-shadow:0 12px 32px rgba(24,54,81,.14);
+}
+.admin-notice-icon {
+  width:36px; height:36px; border-radius:50%;
+  display:grid; place-items:center;
+  font-weight:900; font-size:18px;
+  background:#e8f2f8; color:#183651;
+}
+.admin-notice-content strong { display:block; color:#183651; font-size:15px; margin-bottom:3px; }
+.admin-notice-content p { margin:0; color:#425466; font-size:13px; line-height:1.5; }
+.admin-notice-hint { margin-top:8px; padding:8px 10px; border-radius:9px; background:rgba(24,54,81,.06); color:#425466; font-size:12px; line-height:1.45; white-space:pre-wrap; }
+.admin-notice-close { border:0; background:transparent; color:#64748b; font-size:25px; line-height:1; cursor:pointer; padding:2px 5px; }
+.admin-notice[data-type="success"] { border-color:#a7e7c5; border-left-color:#14945c; background:#f3fff8; }
+.admin-notice[data-type="success"] .admin-notice-icon { background:#daf7e8; color:#0c7a48; }
+.admin-notice[data-type="error"] { border-color:#ffc7c7; border-left-color:#d63838; background:#fff7f7; }
+.admin-notice[data-type="error"] .admin-notice-icon { background:#ffe3e3; color:#b42318; }
+.admin-notice[data-type="warning"] { border-color:#ffd59e; border-left-color:#d97706; background:#fffaf2; }
+.admin-notice[data-type="warning"] .admin-notice-icon { background:#ffefd2; color:#b45309; }
+.admin-notice[data-type="info"] { border-color:#bcdaf0; border-left-color:#2d7eb3; background:#f5fbff; }
+.admin-notice[data-type="info"] .admin-notice-icon { background:#deeffa; color:#246890; }
+@media (max-width:900px){
+  .admin-notice-wrap{ top:125px; padding:0 10px; margin-top:10px; }
+  .admin-notice{ grid-template-columns:34px minmax(0,1fr) 30px; padding:11px; gap:9px; }
+  .admin-notice-icon{ width:32px; height:32px; font-size:16px; }
+}
