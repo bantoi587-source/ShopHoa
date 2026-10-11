@@ -1,0 +1,15 @@
+HOA CO LAU V7.6 - SUA LOI UPLOAD LOGO / HINH DICH VU
+
+1. Vao Supabase > SQL Editor > New query.
+2. Chay toan bo file SUPABASE-FIX-STORAGE-V7.6.sql 1 lan.
+3. Upload cac file V7.6 len ROOT GitHub Pages va ghi de index.html, styles.css, script.js.
+4. Mo web > Admin. Kiem tra phien ban V7.6.
+5. Bam "Kiem tra upload anh" trong muc GIAO DIEN.
+6. Neu bao Storage hoat dong tot: chon logo/hinh dich vu > Luu giao dien website.
+
+DINH DANG ANH
+- Ho tro: JPG, PNG, WebP.
+- Khong dung HEIC/HEIF. Neu anh chup iPhone dang HEIC, hay doi sang JPG/PNG/WebP.
+- Gioi han: 15 MB/file.
+
+V7.6 co fallback xu ly anh cho Safari/iPhone va tu kiem tra URL public sau khi upload.

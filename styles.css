@@ -744,3 +744,6 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   .admin-notice{ grid-template-columns:34px minmax(0,1fr) 30px; padding:11px; gap:9px; }
   .admin-notice-icon{ width:32px; height:32px; font-size:16px; }
 }
+
+/* V7.6 - thông tin file ảnh trong Admin */
+.admin-file-meta{display:block;margin-top:8px;color:#5d7180;font-size:11px;line-height:1.4;word-break:break-all}

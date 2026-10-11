@@ -1,2 +1,1 @@
-Hoa Co Lau Website V7.5
-Admin notifications: success, warning and detailed error guidance after management actions.
+Hoa Co Lau Website V7.6

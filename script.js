@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V7.5 - Supabase + Excel + Admin result/error notifications
+// Hoa Cỏ Lau V7.6 - robust image upload + Supabase Storage diagnostics
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -193,12 +193,15 @@ function adminErrorInfo(error, context = "Thao tác thất bại") {
   } else if (/row-level security|policy|permission denied|42501/i.test(raw)) {
     message = `${context}: Supabase từ chối quyền ghi dữ liệu.`;
     hint = "Kiểm tra RLS policy và Admin UUID trong Supabase. Tài khoản đang đăng nhập phải đúng Admin UUID được cấp quyền.";
-  } else if (/bucket not found/i.test(raw)) {
+  } else if (/bucket not found|not found.*bucket/i.test(raw)) {
     message = `${context}: không tìm thấy bucket shop-images.`;
-    hint = "Vào Supabase → Storage, tạo bucket shop-images và kiểm tra policy upload cho Admin.";
-  } else if (/storage|object.*policy|new row violates row-level security/i.test(raw)) {
-    message = `${context}: không thể tải ảnh lên Supabase Storage.`;
-    hint = "Kiểm tra bucket shop-images, Storage policies, quyền INSERT/UPDATE và tài khoản Admin hiện tại.";
+    hint = "Chạy file SUPABASE-FIX-STORAGE-V7.6.sql trong Supabase → SQL Editor rồi thử lại.";
+  } else if (/row-level security|storage|object.*policy|new row violates row-level security|unauthorized|403/i.test(raw)) {
+    message = `${context}: Supabase Storage từ chối quyền tải ảnh.`;
+    hint = "Đảm bảo bạn đang đăng nhập Admin, sau đó chạy SUPABASE-FIX-STORAGE-V7.6.sql để tạo/cập nhật bucket và policy ảnh.";
+  } else if (/heic|heif|unsupported image|không đọc được ảnh/i.test(lower)) {
+    message = `${context}: định dạng ảnh này chưa được trình duyệt hỗ trợ.`;
+    hint = "Nếu ảnh từ iPhone là HEIC/HEIF, hãy đổi sang JPG/PNG/WebP rồi tải lại. V7.6 chỉ nhận JPG, PNG và WebP để đảm bảo mọi trình duyệt hiển thị được.";
   } else if (/background_color|logo_url|service_image_url|column|schema cache/i.test(raw)) {
     message = `${context}: database chưa có đủ cột giao diện.`;
     hint = "Chạy SUPABASE-MIGRATION-V7.3.sql trong Supabase SQL Editor, chờ vài giây rồi thử lại.";
@@ -961,26 +964,68 @@ adminBackgroundColorText?.addEventListener("input", () => {
   }
 });
 
+function formatBytes(bytes = 0) {
+  const n = Number(bytes) || 0;
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function imageFileKind(file) {
+  const name = String(file?.name || "").toLowerCase();
+  const type = String(file?.type || "").toLowerCase();
+  if (/heic|heif/.test(type) || /\.(heic|heif)$/.test(name)) return "heic";
+  if (type === "image/jpeg" || type === "image/jpg" || /\.(jpe?g)$/.test(name)) return "jpeg";
+  if (type === "image/png" || /\.png$/.test(name)) return "png";
+  if (type === "image/webp" || /\.webp$/.test(name)) return "webp";
+  return "unknown";
+}
+
+function validateAdminImageFile(file, purpose = "Ảnh") {
+  if (!file) throw new Error(`${purpose}: chưa chọn file ảnh.`);
+  const kind = imageFileKind(file);
+  if (kind === "heic") throw new Error(`${purpose}: ảnh HEIC/HEIF chưa được hỗ trợ. Hãy đổi ảnh sang JPG, PNG hoặc WebP.`);
+  if (!['jpeg','png','webp'].includes(kind)) throw new Error(`${purpose}: chỉ hỗ trợ JPG, PNG hoặc WebP.`);
+  if (file.size > 15 * 1024 * 1024) throw new Error(`${purpose}: dung lượng ${formatBytes(file.size)} quá lớn. Vui lòng dùng ảnh dưới 15 MB.`);
+  return kind;
+}
+
 adminLogo?.addEventListener("change", () => {
   const file = adminLogo.files?.[0];
   if (!file) return;
-  pendingLogoFile = file;
-  removeLogoRequested = false;
-  const url = URL.createObjectURL(file);
-  if (adminLogoPreview) adminLogoPreview.innerHTML = `<img src="${url}" alt="Xem trước logo">`;
-  applyLogoToHeader(url, "preview");
-  updateSyncStatus("Đang xem trước logo — bấm Lưu giao diện để đồng bộ", "local");
+  try {
+    validateAdminImageFile(file, "Logo");
+    pendingLogoFile = file;
+    removeLogoRequested = false;
+    const url = URL.createObjectURL(file);
+    if (adminLogoPreview) adminLogoPreview.innerHTML = `<img src="${url}" alt="Xem trước logo"><small class="admin-file-meta">${escapeHtml(file.name)} • ${formatBytes(file.size)}</small>`;
+    applyLogoToHeader(url, "preview");
+    updateSyncStatus("Đã chọn logo — bấm Lưu giao diện để tải lên Supabase", "local");
+    showAdminNotice("info", "Đã chọn logo", `${file.name} • ${formatBytes(file.size)}`, "Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 4000 });
+  } catch (error) {
+    pendingLogoFile = null;
+    adminLogo.value = "";
+    showAdminError(error, "Không thể chọn logo");
+  }
 });
 
 adminServiceImage?.addEventListener("change", () => {
   const file = adminServiceImage.files?.[0];
   if (!file) return;
-  pendingServiceImageFile = file;
-  removeServiceImageRequested = false;
-  const url = URL.createObjectURL(file);
-  if (adminServiceImagePreview) adminServiceImagePreview.innerHTML = `<img src="${url}" alt="Xem trước hình dịch vụ">`;
-  applyServiceImageToPage(url, "preview");
-  updateSyncStatus("Đang xem trước hình dịch vụ — bấm Lưu giao diện để đồng bộ", "local");
+  try {
+    validateAdminImageFile(file, "Hình dịch vụ");
+    pendingServiceImageFile = file;
+    removeServiceImageRequested = false;
+    const url = URL.createObjectURL(file);
+    if (adminServiceImagePreview) adminServiceImagePreview.innerHTML = `<img src="${url}" alt="Xem trước hình dịch vụ"><small class="admin-file-meta">${escapeHtml(file.name)} • ${formatBytes(file.size)}</small>`;
+    applyServiceImageToPage(url, "preview");
+    updateSyncStatus("Đã chọn hình dịch vụ — bấm Lưu giao diện để tải lên Supabase", "local");
+    showAdminNotice("info", "Đã chọn hình dịch vụ", `${file.name} • ${formatBytes(file.size)}`, "Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 4000 });
+  } catch (error) {
+    pendingServiceImageFile = null;
+    adminServiceImage.value = "";
+    showAdminError(error, "Không thể chọn hình dịch vụ");
+  }
 });
 
 document.getElementById("adminRemoveLogo")?.addEventListener("click", () => {
@@ -1001,53 +1046,156 @@ document.getElementById("adminRemoveServiceImage")?.addEventListener("click", ()
   updateSyncStatus("Đang xem trước việc xóa hình dịch vụ — bấm Lưu giao diện để đồng bộ", "local");
 });
 
-async function optimizeImage(file, maxDimension = 1800, quality = 0.86) {
-  if (!file?.type?.startsWith("image/")) throw new Error("Vui lòng chọn file ảnh JPG, PNG hoặc WebP.");
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close?.();
-  const blob = await new Promise((resolve, reject) => {
-    canvas.toBlob(result => result ? resolve(result) : reject(new Error("Không thể xử lý ảnh.")), "image/jpeg", quality);
+async function loadImageForCanvas(file) {
+  // createImageBitmap nhanh trên Chrome/Edge; fallback Image giúp Safari/iOS ổn định hơn.
+  if (typeof createImageBitmap === "function") {
+    try {
+      const bitmap = await createImageBitmap(file);
+      return { width: bitmap.width, height: bitmap.height, draw: (ctx, w, h) => ctx.drawImage(bitmap, 0, 0, w, h), close: () => bitmap.close?.() };
+    } catch (error) {
+      console.warn("createImageBitmap thất bại, chuyển sang Image fallback:", error);
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("Không đọc được ảnh trên trình duyệt này. Nếu là ảnh iPhone HEIC, hãy đổi sang JPG/PNG/WebP."));
+      el.src = objectUrl;
+    });
+    return { width: img.naturalWidth || img.width, height: img.naturalHeight || img.height, draw: (ctx, w, h) => ctx.drawImage(img, 0, 0, w, h), close: () => URL.revokeObjectURL(objectUrl) };
+  } catch (error) {
+    URL.revokeObjectURL(objectUrl);
+    throw error;
+  }
+}
+
+function canvasToBlobSafe(canvas, preferredType, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => {
+      if (blob) return resolve(blob);
+      // Một số Safari cũ không encode WebP; fallback PNG cho logo.
+      if (preferredType === "image/webp") {
+        canvas.toBlob(png => png ? resolve(png) : reject(new Error("Trình duyệt không thể chuyển đổi ảnh.")), "image/png");
+      } else {
+        reject(new Error("Trình duyệt không thể chuyển đổi ảnh."));
+      }
+    }, preferredType, quality);
   });
-  return blob;
+}
+
+async function prepareImageBlob(file, maxDimension = 1800, outputType = "image/jpeg", quality = 0.86) {
+  validateAdminImageFile(file, "Ảnh");
+  const source = await loadImageForCanvas(file);
+  try {
+    if (!source.width || !source.height) throw new Error("Không đọc được kích thước ảnh.");
+    const scale = Math.min(1, maxDimension / Math.max(source.width, source.height));
+    const width = Math.max(1, Math.round(source.width * scale));
+    const height = Math.max(1, Math.round(source.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { alpha: outputType !== "image/jpeg" });
+    if (!ctx) throw new Error("Trình duyệt không hỗ trợ xử lý ảnh Canvas.");
+    if (outputType === "image/jpeg") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+    }
+    source.draw(ctx, width, height);
+    return await canvasToBlobSafe(canvas, outputType, quality);
+  } finally {
+    source.close?.();
+  }
+}
+
+async function ensureAdminSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+  if (error) throw error;
+  if (!data?.session?.user) throw new Error("Bạn chưa đăng nhập Admin hoặc phiên đăng nhập đã hết hạn. Hãy đăng nhập lại rồi thử upload ảnh.");
+  return data.session.user;
+}
+
+async function verifyPublicImageUrl(url) {
+  if (!url) throw new Error("Không lấy được URL công khai của ảnh sau khi upload.");
+  await new Promise((resolve, reject) => {
+    const img = new Image();
+    const timer = setTimeout(() => reject(new Error("Ảnh đã upload nhưng không mở được từ URL public. Hãy kiểm tra bucket shop-images có bật Public.")), 10000);
+    img.onload = () => { clearTimeout(timer); resolve(); };
+    img.onerror = () => { clearTimeout(timer); reject(new Error("Ảnh đã upload nhưng không truy cập công khai được. Hãy chạy SUPABASE-FIX-STORAGE-V7.6.sql.")); };
+    img.src = versionedAssetUrl(url, Date.now());
+  });
 }
 
 async function uploadImage(file, folder, maxDimension = 1800, outputType = "image/jpeg", quality = 0.86) {
-  if (!file?.type?.startsWith("image/")) throw new Error("Vui lòng chọn file ảnh JPG, PNG hoặc WebP.");
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const width = Math.max(1, Math.round(bitmap.width * scale));
-  const height = Math.max(1, Math.round(bitmap.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width; canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  // JPEG không có alpha nên thêm nền trắng; WebP giữ được nền trong suốt cho logo.
-  if (outputType === "image/jpeg") { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, width, height); }
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close?.();
-  const blob = await new Promise((resolve, reject) => {
-    canvas.toBlob(result => result ? resolve(result) : reject(new Error("Không thể xử lý ảnh.")), outputType, quality);
-  });
-  const ext = outputType === "image/webp" ? "webp" : "jpg";
+  validateAdminImageFile(file, "Ảnh upload");
+  await ensureAdminSession();
+
+  let blob;
+  try {
+    blob = await prepareImageBlob(file, maxDimension, outputType, quality);
+  } catch (processingError) {
+    // Fallback: JPG/PNG/WebP chuẩn có thể upload nguyên file nếu trình duyệt xử lý Canvas lỗi.
+    const kind = imageFileKind(file);
+    if (!['jpeg','png','webp'].includes(kind)) throw processingError;
+    console.warn("Tối ưu ảnh thất bại, upload file gốc:", processingError);
+    blob = file;
+  }
+
+  const actualType = blob.type || file.type || "image/jpeg";
+  const ext = actualType.includes("png") ? "png" : actualType.includes("webp") ? "webp" : "jpg";
   const random = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const path = `${folder}/${random}.${ext}`;
+
   const { error } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, blob, {
-    contentType: outputType,
+    contentType: actualType,
     cacheControl: "3600",
     upsert: false
   });
   if (error) throw error;
+
   const { data } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-  if (!data?.publicUrl) throw new Error("Không lấy được URL ảnh sau khi upload.");
-  return data.publicUrl;
+  const publicUrl = data?.publicUrl || "";
+  await verifyPublicImageUrl(publicUrl);
+  return publicUrl;
 }
+
+async function testStorageUpload() {
+  await ensureAdminSession();
+  const canvas = document.createElement("canvas");
+  canvas.width = 2; canvas.height = 2;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, 2, 2);
+  const blob = await canvasToBlobSafe(canvas, "image/png", 1);
+  const path = `_diagnostics/test-${Date.now()}.png`;
+  const { error: uploadError } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(path, blob, { contentType:"image/png", upsert:false, cacheControl:"60" });
+  if (uploadError) throw uploadError;
+  const { data } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  await verifyPublicImageUrl(data?.publicUrl || "");
+  const { error: deleteError } = await supabaseClient.storage.from(STORAGE_BUCKET).remove([path]);
+  return { deleteError };
+}
+
+document.getElementById("adminTestStorage")?.addEventListener("click", async () => {
+  const button = document.getElementById("adminTestStorage");
+  button.disabled = true;
+  button.textContent = "Đang kiểm tra Storage...";
+  try {
+    const result = await testStorageUpload();
+    if (result.deleteError) {
+      showAdminWarning("Upload ảnh hoạt động", "Đã upload và mở được ảnh từ Supabase Storage.", "Tuy nhiên không xóa được file test. Kiểm tra policy DELETE nếu bạn muốn dọn file cũ.");
+    } else {
+      showAdminSuccess("Storage hoạt động tốt", "Đã kiểm tra đăng nhập, upload ảnh, URL public và xóa file test thành công.", "Bạn có thể tải logo và hình dịch vụ.");
+    }
+  } catch (error) {
+    showAdminError(error, "Kiểm tra Storage thất bại");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Kiểm tra upload ảnh";
+  }
+});
 
 document.getElementById("adminSaveAppearance")?.addEventListener("click", async () => {
   const button = document.getElementById("adminSaveAppearance");
@@ -1096,6 +1244,12 @@ document.getElementById("adminSaveAppearance")?.addEventListener("click", async 
 
     siteSettings = mapSettingsRow(saved);
     lastSettingsUpdatedAt = saved.updated_at || lastSettingsUpdatedAt;
+    pendingLogoFile = null;
+    pendingServiceImageFile = null;
+    removeLogoRequested = false;
+    removeServiceImageRequested = false;
+    if (adminLogo) adminLogo.value = "";
+    if (adminServiceImage) adminServiceImage.value = "";
     applySiteSettings();
     populateAdminSettings();
     updateSyncStatus("Đã lưu & áp dụng giao diện Supabase — mọi thiết bị dùng chung", "online");
@@ -1590,7 +1744,7 @@ async function exportAllWebsiteDataExcel() {
     const currentSettings = settingsExport.find(row => Number(row.id) === 1) || settingsExport[0] || {};
     const overviewRows = [
       ["HẠNG MỤC", "GIÁ TRỊ"],
-      ["Phiên bản website", "V7.5"],
+      ["Phiên bản website", "V7.6"],
       ["Thời điểm xuất", now.toLocaleString("vi-VN")],
       ["Nguồn dữ liệu", "Supabase - dữ liệu hiện tại trên website"],
       ["Tổng mẫu hoa", productRows.length],
