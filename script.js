@@ -823,6 +823,41 @@ const adminImportFile = document.getElementById("adminImportFile");
 const adminImportBtn = document.getElementById("adminImportBtn");
 const adminImportStatus = document.getElementById("adminImportStatus");
 
+
+// ---------------- V7.9: Admin pages + header navigation ----------------
+const ADMIN_PAGE_KEYS = ["website", "appearance", "categories", "products", "data"];
+let currentAdminPage = "website";
+
+function adminPageFromHash() {
+  const raw = String(location.hash || "");
+  if (!raw.startsWith("#admin")) return "";
+  const key = raw.split("/")[1] || "website";
+  return ADMIN_PAGE_KEYS.includes(key) ? key : "website";
+}
+
+function showAdminPage(page = "website", { updateHash = true, scrollTop = true } = {}) {
+  const key = ADMIN_PAGE_KEYS.includes(page) ? page : "website";
+  currentAdminPage = key;
+  document.querySelectorAll("[data-admin-page]").forEach(section => {
+    section.hidden = section.dataset.adminPage !== key;
+  });
+  document.querySelectorAll("[data-admin-page-target]").forEach(button => {
+    const active = button.dataset.adminPageTarget === key;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+  });
+  if (updateHash && adminShell && !adminShell.hidden) {
+    history.replaceState(null, "", `#admin/${key}`);
+  }
+  if (scrollTop) {
+    try { adminShell?.scrollTo({ top: 0, behavior: "smooth" }); } catch (_) { if (adminShell) adminShell.scrollTop = 0; }
+  }
+}
+
+document.querySelectorAll("[data-admin-page-target]").forEach(button => {
+  button.addEventListener("click", () => showAdminPage(button.dataset.adminPageTarget));
+});
+
 async function refreshAdminAuthState() {
   const { data, error } = await supabaseClient.auth.getSession();
   if (error) {
@@ -846,6 +881,7 @@ async function openAdmin() {
     renderAdminCategories();
     renderAdminProducts();
     renderAdminCategoryOptions();
+    showAdminPage(adminPageFromHash() || currentAdminPage || "website", { updateHash: false, scrollTop: false });
   }
 }
 
@@ -865,18 +901,21 @@ function closeAdmin() {
   }
   adminShell.hidden = true;
   document.body.style.overflow = "";
-  if (location.hash === "#admin") history.replaceState(null, "", location.pathname + location.search);
+  if (String(location.hash || "").startsWith("#admin")) history.replaceState(null, "", location.pathname + location.search);
 }
 
 async function checkAdminHash() {
-  if (location.hash === "#admin") await openAdmin();
+  if (String(location.hash || "").startsWith("#admin")) {
+    await openAdmin();
+    showAdminPage(adminPageFromHash() || "website", { updateHash: false, scrollTop: false });
+  }
 }
 
 window.addEventListener("hashchange", checkAdminHash);
 document.querySelectorAll("[data-admin-open]").forEach(link => {
   link.addEventListener("click", async e => {
     e.preventDefault();
-    if (location.hash !== "#admin") history.replaceState(null, "", "#admin");
+    if (!String(location.hash || "").startsWith("#admin")) history.replaceState(null, "", "#admin/website");
     await openAdmin();
   });
 });
@@ -914,6 +953,7 @@ document.getElementById("adminLoginBtn")?.addEventListener("click", async () => 
   renderAdminCategories();
   renderAdminProducts();
   renderAdminCategoryOptions();
+  showAdminPage(adminPageFromHash() || currentAdminPage || "website", { updateHash: false, scrollTop: false });
   showAdminSuccess("Đăng nhập thành công", "Đã kết nối Supabase và tải dữ liệu quản trị.");
   showToast("Đăng nhập Admin thành công");
 });
@@ -936,14 +976,12 @@ document.querySelectorAll("[data-zalo-link], [data-facebook-link], [data-messeng
     if (link.dataset.unconfigured === "1") {
       e.preventDefault();
       await openAdmin();
-      document.getElementById("adminSettingsCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      showAdminPage("website");
     }
   });
 });
 
-document.getElementById("adminGoSettings")?.addEventListener("click", () => {
-  document.getElementById("adminSettingsCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
-});
+document.getElementById("adminGoSettings")?.addEventListener("click", () => showAdminPage("website"));
 
 function populateAdminSettings() {
   if (!adminPhone) return;
@@ -1594,6 +1632,7 @@ function renderAdminProducts() {
 }
 
 function editAdminProduct(id) {
+  showAdminPage("products", { updateHash: true, scrollTop: false });
   const p = products.find(x => x.id === id);
   if (!p || usingFallbackProducts) return;
   adminProductId.value = p.id;

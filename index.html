@@ -1,456 +1,436 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Hoa Cỏ Lau - Hoa tươi, hoa cưới, tráp cưới hỏi tại Giồng Tre, An Ngãi Trung, Vĩnh Long." />
-  <meta name="theme-color" id="browserThemeColor" content="#fffdf8" />
-  <title>Hoa Cỏ Lau | Hoa tươi - Tráp cưới hỏi</title>
-  <link rel="stylesheet" href="styles.css?v=7.8.0" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="Hoa Cỏ Lau - Hoa tươi, hoa cưới, tráp cưới hỏi tại Giồng Tre, An Ngãi Trung, Vĩnh Long." name="description"/>
+<meta content="#fffdf8" id="browserThemeColor" name="theme-color"/>
+<title>Hoa Cỏ Lau | Hoa tươi - Tráp cưới hỏi</title>
+<link href="styles.css?v=7.8.0" rel="stylesheet"/>
 </head>
 <body>
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <span>🌾 Hoa tươi mỗi ngày • Thiết kế theo yêu cầu</span>
-      <a href="tel:0353724232" data-phone-link>Hotline: <span data-phone-text>0353 72 42 32</span></a>
-    </div>
-  </div>
-
-  <header class="header" id="top">
-    <div class="container nav-wrap">
-      <a class="brand" href="#top" aria-label="Hoa Cỏ Lau">
-        <span class="brand-mark" id="headerBrandMark">HCL</span>
-        <img class="brand-logo" id="headerLogo" alt="Logo Hoa Cỏ Lau" hidden />
-        <span>
-          <strong>Hoa Cỏ Lau</strong>
-          <small>Hoa tươi • Tráp cưới hỏi</small>
-        </span>
-      </a>
-
-      <button class="menu-toggle" id="menuToggle" aria-label="Mở menu">☰</button>
-
-      <nav class="nav" id="mainNav">
-        <a href="#top">Trang chủ</a>
-        <a href="#categories">Danh mục</a>
-        <a href="#products">Sản phẩm</a>
-        <a href="#wedding">Cưới hỏi</a>
-        <a href="#contact">Liên hệ</a>
-        <a href="#admin" data-admin-open>Quản trị</a>
-      </nav>
-
-      <button class="cart-button" id="cartButton" aria-label="Mở giỏ hàng">
+<div class="topbar">
+<div class="container topbar-inner">
+<span>🌾 Hoa tươi mỗi ngày • Thiết kế theo yêu cầu</span>
+<a data-phone-link="" href="tel:0353724232">Hotline: <span data-phone-text="">0353 72 42 32</span></a>
+</div>
+</div>
+<header class="header" id="top">
+<div class="container nav-wrap">
+<a aria-label="Hoa Cỏ Lau" class="brand" href="#top">
+<span class="brand-mark" id="headerBrandMark">HCL</span>
+<img alt="Logo Hoa Cỏ Lau" class="brand-logo" hidden="" id="headerLogo"/>
+<span>
+<strong>Hoa Cỏ Lau</strong>
+<small>Hoa tươi • Tráp cưới hỏi</small>
+</span>
+</a>
+<button aria-label="Mở menu" class="menu-toggle" id="menuToggle">☰</button>
+<nav class="nav" id="mainNav">
+<a href="#top">Trang chủ</a>
+<a href="#categories">Danh mục</a>
+<a href="#products">Sản phẩm</a>
+<a href="#wedding">Cưới hỏi</a>
+<a href="#contact">Liên hệ</a>
+<a data-admin-open="" href="#admin">Quản trị</a>
+</nav>
+<button aria-label="Mở giỏ hàng" class="cart-button" id="cartButton">
         🛍️ <span>Giỏ hàng</span><b id="cartCount">0</b>
-      </button>
-    </div>
-  </header>
+</button>
+</div>
+</header>
+<main>
+<section aria-label="Banner Hoa Cỏ Lau" class="banner-section">
+<img alt="Tiệm Hoa Cỏ Lau - Hoa tươi - Tráp cưới hỏi" id="siteBanner" src="assets/banner-hoa-co-lau.webp"/>
+</section>
+<section class="hero-copy">
+<div class="container hero-copy-grid">
+<div>
+<p class="eyebrow">Tiệm Hoa Cỏ Lau</p>
+<h1>Trao hoa đẹp, gửi trọn tình cảm.</h1>
+<p class="lead">Hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và tráp cưới hỏi được thiết kế chỉn chu theo từng dịp.</p>
+<div class="hero-actions">
+<a class="btn primary" href="#products">Xem mẫu hoa</a>
+<a class="btn ghost" data-phone-link="" href="tel:0353724232">☎ Gọi đặt hoa</a>
+</div>
+</div>
+<div class="hero-note">
+<div><span>01</span><p><strong>Thiết kế theo yêu cầu</strong><br/>Phối màu, kiểu dáng và ngân sách linh hoạt.</p></div>
+<div><span>02</span><p><strong>Hoa tươi chọn lọc</strong><br/>Ưu tiên độ tươi và hình thức khi giao khách.</p></div>
+<div><span>03</span><p><strong>Cưới hỏi trọn gói</strong><br/>Hoa cưới, tráp cưới và trang trí theo concept.</p></div>
+</div>
+</div>
+</section>
+<section class="section" id="categories">
+<div class="container">
+<div class="section-head">
+<div>
+<p class="eyebrow">Chọn theo nhu cầu</p>
+<h2>Danh mục nổi bật</h2>
+</div>
+<p>Chọn nhanh mẫu hoa phù hợp với dịp bạn đang cần.</p>
+</div>
+<div class="category-grid" id="categoryGrid"></div>
+</div>
+</section>
+<section class="section products-section" id="products">
+<div class="container">
+<div class="section-head product-head">
+<div>
+<p class="eyebrow">Bộ sưu tập</p>
+<h2>Mẫu hoa được yêu thích</h2>
+</div>
+<div class="product-tools">
+<div class="search-box">
+<span>⌕</span>
+<input id="searchInput" placeholder="Tìm hoa..." type="search"/>
+</div>
+<select aria-label="Sắp xếp" id="sortSelect">
+<option value="featured">Nổi bật</option>
+<option value="price-asc">Giá thấp → cao</option>
+<option value="price-desc">Giá cao → thấp</option>
+</select>
+</div>
+</div>
+<div class="filter-row" id="filterRow"></div>
+<div class="product-grid" id="productGrid"></div>
+</div>
+</section>
+<section class="wedding-section" id="wedding">
+<div class="container wedding-grid">
+<div aria-hidden="true" class="wedding-art" id="weddingArt">
+<img alt="Hình dịch vụ cưới hỏi" class="wedding-service-image" hidden="" id="serviceImage"/>
+<div class="wedding-art-decor" id="weddingArtDecor">
+<div class="ring ring-one"></div>
+<div class="ring ring-two"></div>
+<div class="wheat">🌾</div>
+</div>
+</div>
+<div class="wedding-copy">
+<p class="eyebrow">Dịch vụ cưới hỏi</p>
+<h2>Hoa cưới &amp; tráp cưới đồng bộ theo concept</h2>
+<p>Từ hoa cầm tay cô dâu, hoa cài áo, hoa xe cưới đến tráp lễ: Hoa Cỏ Lau có thể phối đồng bộ màu sắc và phong cách cho ngày trọng đại.</p>
+<ul class="check-list">
+<li>✓ Tư vấn concept theo màu áo dài / váy cưới</li>
+<li>✓ Điều chỉnh theo ngân sách</li>
+<li>✓ Nhận thiết kế mẫu riêng theo yêu cầu</li>
+</ul>
+<a class="btn primary" data-phone-link="" href="tel:0353724232">Tư vấn cưới hỏi</a>
+</div>
+</div>
+</section>
+<section class="section testimonials">
+<div class="container">
+<div class="section-head">
+<div>
+<p class="eyebrow">Khách hàng nói gì</p>
+<h2>Một món quà đẹp bắt đầu từ sự chỉn chu</h2>
+</div>
+</div>
+<div class="testimonial-grid">
+<article><div class="stars">★★★★★</div><p>“Hoa phối màu rất xinh, gói sạch đẹp và lên hình sang. Mình đặt sinh nhật khá gấp nhưng shop hỗ trợ rất nhiệt tình.”</p><strong>Khách hàng sinh nhật</strong></article>
+<article><div class="stars">★★★★★</div><p>“Tráp cưới phối đúng tông gia đình chọn. Tổng thể gọn gàng, đẹp mắt và đúng giờ.”</p><strong>Khách hàng cưới hỏi</strong></article>
+<article><div class="stars">★★★★★</div><p>“Mẫu khai trương nhìn nổi bật, hoa tươi và tư vấn ngân sách rõ ràng.”</p><strong>Khách hàng doanh nghiệp</strong></article>
+</div>
+</div>
+</section>
+<section class="contact-section" id="contact">
+<div class="container contact-grid">
+<div>
+<p class="eyebrow light">Liên hệ Hoa Cỏ Lau</p>
+<h2>Đặt hoa nhanh qua điện thoại</h2>
+<p class="contact-desc">Gửi cho shop dịp cần hoa, ngân sách, màu yêu thích và thời gian nhận. Shop sẽ tư vấn mẫu phù hợp.</p>
+</div>
+<div class="contact-card">
+<div><span>📍</span><p><small>Địa chỉ</small><strong>Giồng Tre, An Ngãi Trung, Vĩnh Long</strong></p></div>
+<div><span>☎️</span><p><small>Hotline</small><a data-phone-link="" href="tel:0353724232"><span data-phone-text="">0353 72 42 32</span></a></p></div>
+<div id="contactZaloRow"><span class="social-badge zalo-badge">Z</span><p><small>Zalo</small><a data-zalo-link="" href="#" rel="noopener noreferrer" target="_blank"><span data-zalo-text="">Nhắn Zalo</span></a></p></div>
+<div id="contactFacebookRow"><span class="social-badge facebook-badge">f</span><p><small>Facebook</small><a data-facebook-link="" href="#" rel="noopener noreferrer" target="_blank"><span data-facebook-text="">Mở Facebook</span></a></p></div>
+<div id="contactMessengerRow"><span class="social-badge messenger-badge">M</span><p><small>Messenger</small><a data-messenger-link="" href="#" rel="noopener noreferrer" target="_blank"><span data-messenger-text="">Nhắn Messenger</span></a></p></div>
+</div>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="container footer-grid">
+<div>
+<strong>Hoa Cỏ Lau</strong>
+<p>Hoa tươi • Hoa cưới • Tráp cưới hỏi</p>
+</div>
+<div class="footer-links">
+<a href="#products">Sản phẩm</a>
+<a href="#wedding">Cưới hỏi</a>
+<a href="#contact">Liên hệ</a>
+<a data-admin-open="" href="#admin">Quản trị</a>
+</div>
+<p>© 2026 Hoa Cỏ Lau. Website mẫu.</p>
+</div>
+</footer>
+<button class="floating-admin" id="adminOpenBtn" type="button">⚙ Admin</button>
+<div aria-label="Liên hệ nhanh" class="floating-contact-dock">
+<a aria-label="Nhắn Zalo" class="floating-contact floating-zalo" data-zalo-link="" href="#" rel="noopener noreferrer" target="_blank">
+<span aria-hidden="true" class="floating-icon floating-icon-zalo">Z</span>
+</a>
+<a aria-label="Mở Facebook" class="floating-contact floating-facebook" data-facebook-link="" href="#" rel="noopener noreferrer" target="_blank">
+<span aria-hidden="true" class="floating-icon floating-icon-facebook">f</span>
+</a>
+<a aria-label="Nhắn Messenger" class="floating-contact floating-messenger" data-messenger-link="" href="#" rel="noopener noreferrer" target="_blank">
+<svg aria-hidden="true" class="floating-icon-svg" focusable="false" viewbox="0 0 24 24">
+<path d="M12 3C6.9 3 3 6.7 3 11.4c0 2.7 1.3 5.1 3.5 6.7V21l2.7-1.5c.9.2 1.8.3 2.8.3 5.1 0 9-3.7 9-8.4S17.1 3 12 3Zm1 11.1-2.3-2.5-4.5 2.5 4.9-5.2 2.3 2.5 4.4-2.5-4.8 5.2Z"></path>
+</svg>
+</a>
+<a aria-label="Gọi Hoa Cỏ Lau" class="floating-contact floating-call" data-phone-link="" href="tel:0353724232">
+<span aria-hidden="true" class="floating-icon floating-icon-call">☎</span>
+</a>
+</div>
+<div class="overlay" id="overlay"></div>
+<aside aria-label="Giỏ hàng" class="cart-drawer" id="cartDrawer">
+<div class="cart-head">
+<div>
+<small>Đơn hoa của bạn</small>
+<h3>Giỏ hàng</h3>
+</div>
+<button aria-label="Đóng" id="cartClose">×</button>
+</div>
+<div class="cart-items" id="cartItems"></div>
+<div class="cart-empty" id="cartEmpty">
+<div>🌷</div>
+<p>Giỏ hàng đang trống.</p>
+<small>Chọn một mẫu hoa bạn thích nhé.</small>
+</div>
+<div class="cart-footer">
+<div class="cart-total"><span>Tạm tính</span><strong id="cartTotal">0₫</strong></div>
+<a class="btn primary full" data-phone-link="" href="tel:0353724232">Gọi shop để chốt đơn</a>
+<small>Giá và mẫu hoa có thể thay đổi theo thời điểm. Shop sẽ xác nhận trước khi làm.</small>
+</div>
+</aside>
+<div class="toast" id="toast">Đã thêm vào giỏ hàng</div>
+<section class="admin-shell" hidden="" id="adminShell">
+<div class="admin-login" id="adminLogin">
+<div class="admin-login-card">
+<div class="admin-logo">HCL</div>
+<p class="eyebrow">Khu vực quản trị</p>
+<h2>Hoa Cỏ Lau Admin</h2>
+<p>Đăng nhập tài khoản Admin Supabase để quản lý dữ liệu dùng chung trên máy tính và điện thoại.</p>
+<label>Email Admin</label>
+<input autocomplete="username" id="adminEmail" placeholder="admin@example.com" type="email"/>
+<label>Mật khẩu</label>
+<input autocomplete="current-password" id="adminPassword" placeholder="Nhập mật khẩu Supabase" type="password"/>
+<button class="btn primary full" id="adminLoginBtn">Đăng nhập</button>
+<button class="admin-text-btn" id="adminExitFromLogin">← Về website</button>
+<small class="admin-warning">Bản V7.9 dùng Supabase và tách riêng từng trang quản lý trong Admin. Menu quản trị nằm trên header.</small>
+</div>
+</div>
+<div class="admin-app" hidden="" id="adminApp">
+<header class="admin-topbar">
+<div class="admin-topbar-main">
+<div class="admin-heading">
+<small>TIỆM HOA CỎ LAU</small>
+<h2>Quản trị website <span class="admin-version">V7.9</span></h2>
+</div>
+<div class="admin-top-actions">
+<button class="admin-secondary" id="adminLogout" type="button">Đăng xuất</button>
+<button class="admin-secondary" id="adminExit" type="button">Xem website</button>
+</div>
+</div>
+<nav aria-label="Menu quản trị" class="admin-header-menu">
+<button class="admin-nav-btn is-active" data-admin-page-target="website" type="button"><span>☎</span> Website</button>
+<button class="admin-nav-btn" data-admin-page-target="appearance" type="button"><span>🎨</span> Giao diện</button>
+<button class="admin-nav-btn" data-admin-page-target="categories" type="button"><span>▦</span> Danh mục</button>
+<button class="admin-nav-btn" data-admin-page-target="products" type="button"><span>💐</span> Sản phẩm</button>
+<button class="admin-nav-btn" data-admin-page-target="data" type="button"><span>⇅</span> Dữ liệu</button>
+</nav>
+</header>
+<div aria-atomic="true" aria-live="polite" class="admin-notice-wrap" hidden="" id="adminNoticeWrap">
+<div class="admin-notice" data-type="info" id="adminNotice">
+<div aria-hidden="true" class="admin-notice-icon" id="adminNoticeIcon">i</div>
+<div class="admin-notice-content">
+<strong id="adminNoticeTitle">Thông báo</strong>
+<p id="adminNoticeMessage"></p>
+<div class="admin-notice-hint" hidden="" id="adminNoticeHint"></div>
+</div>
+<button aria-label="Đóng thông báo" class="admin-notice-close" id="adminNoticeClose" type="button">×</button>
+</div>
+</div>
+<div class="admin-pages" id="adminPages"><section class="admin-page admin-page-narrow" data-admin-page="website">
+<div class="admin-page-head">
+<div><small>WEBSITE</small><h3>Thông tin website</h3><p>Quản lý hotline, Zalo, Facebook, Messenger và banner trang chủ.</p></div>
+</div>
+<div class="admin-page-body"><section class="admin-settings-card" id="adminSettingsCard">
+<div class="admin-form-title">
+<div>
+<small>WEBSITE</small>
+<h3>Thông tin liên hệ &amp; Banner</h3>
+<p class="admin-section-note">Sửa hotline, Zalo, Facebook, Messenger và banner tại đây.</p>
+<div class="admin-sync-status" data-state="local" id="adminSyncStatus">Đang kiểm tra chế độ đồng bộ...</div>
+</div>
+</div>
+<label>Số điện thoại / Hotline</label>
+<input id="adminPhone" placeholder="0353 72 42 32" type="text"/>
+<label>Link Zalo</label>
+<input id="adminZalo" placeholder="https://zalo.me/0353724232" type="text"/>
+<label>Tên hiển thị Zalo</label>
+<input id="adminZaloName" placeholder="Ví dụ: Zalo Hoa Cỏ Lau" type="text"/>
+<label>Link Facebook</label>
+<input id="adminFacebook" placeholder="https://facebook.com/ten-trang" type="text"/>
+<label>Tên hiển thị Facebook</label>
+<input id="adminFacebookName" placeholder="Ví dụ: Facebook Hoa Cỏ Lau" type="text"/>
+<label>Link Messenger</label>
+<input id="adminMessenger" placeholder="https://m.me/ten-trang" type="text"/>
+<label>Tên hiển thị Messenger</label>
+<input id="adminMessengerName" placeholder="Ví dụ: Nhắn Hoa Cỏ Lau" type="text"/>
+<label>Banner trang chủ</label>
+<input accept="image/*" id="adminBanner" type="file"/>
+<div class="admin-banner-preview" id="adminBannerPreview">
+<span>Banner hiện tại</span>
+</div>
+<small class="admin-help">Ảnh banner sẽ được tối ưu rồi tải lên Supabase Storage. Nên dùng ảnh ngang tỉ lệ khoảng 2:1.</small>
+<button class="btn primary full" id="adminSaveSettings">Lưu cài đặt website</button>
+<button class="admin-outline-btn full" id="adminResetSettings">Khôi phục cài đặt mặc định</button>
+</section></div>
+</section><section class="admin-page admin-page-narrow" data-admin-page="appearance" hidden="">
+<div class="admin-page-head">
+<div><small>GIAO DIỆN</small><h3>Giao diện &amp; hình ảnh</h3><p>Thay đổi màu nền, logo đầu trang và hình ảnh khu vực dịch vụ.</p></div>
+</div>
+<div class="admin-page-body"><section class="admin-appearance-card" id="adminAppearanceCard">
+<div class="admin-form-title">
+<div>
+<small>GIAO DIỆN</small>
+<h3>Màu nền, Logo &amp; Hình dịch vụ</h3>
+<p class="admin-section-note">Tùy chỉnh giao diện chính của website. Dữ liệu được lưu trên Supabase và đồng bộ cho mọi thiết bị.</p>
+<p class="admin-migration-note">Nếu bạn đã chạy migration V7.3 trước đó thì <strong>không cần chạy SQL thêm</strong>.</p>
+</div>
+</div>
+<label>Màu nền website</label>
+<div class="admin-color-row">
+<input aria-label="Chọn màu nền website" id="adminBackgroundColor" type="color" value="#fffdf8"/>
+<input id="adminBackgroundColorText" maxlength="7" placeholder="#fffdf8" type="text" value="#fffdf8"/>
+</div>
+<small class="admin-help">Nên chọn màu sáng/pastel để chữ và sản phẩm dễ nhìn.</small>
+<label>Logo đầu trang</label>
+<input accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" id="adminLogo" type="file"/>
+<div class="admin-logo-preview" id="adminLogoPreview"><span>Chưa cài logo riêng — đang dùng HCL mặc định</span></div>
+<button class="admin-outline-btn full" id="adminRemoveLogo" type="button">Xóa logo riêng</button>
+<small class="admin-help">Khuyên dùng PNG/WebP nền trong suốt, ảnh vuông hoặc ngang. Website sẽ tự tối ưu ảnh.</small>
+<label>Hình phần dịch vụ cưới hỏi</label>
+<input accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" id="adminServiceImage" type="file"/>
+<div class="admin-service-preview" id="adminServiceImagePreview"><span>Chưa cài ảnh dịch vụ riêng</span></div>
+<button class="admin-outline-btn full" id="adminRemoveServiceImage" type="button">Xóa hình dịch vụ riêng</button>
+<small class="admin-help">Nên dùng JPG/PNG/WebP. Ảnh HEIC từ iPhone cần đổi sang JPG/PNG trước khi tải. Khi có ảnh, phần minh họa vòng cưới mặc định sẽ được thay bằng ảnh này.</small>
+<button class="admin-outline-btn full" id="adminTestStorage" type="button">Kiểm tra upload ảnh</button>
+<small class="admin-help">V7.8 giữ nguyên preview của banner, logo và hình dịch vụ trong lúc chỉnh sửa; đồng bộ nền sẽ không còn tự đưa ảnh về mặc định. Nếu upload lên Supabase lỗi, bấm nút kiểm tra bên dưới.</small>
+<button class="btn primary full" id="adminSaveAppearance" type="button">Lưu giao diện website</button>
+<button class="admin-outline-btn full" id="adminResetAppearance" type="button">Khôi phục giao diện mặc định</button>
+</section></div>
+</section><section class="admin-page admin-page-narrow" data-admin-page="categories" hidden="">
+<div class="admin-page-head">
+<div><small>DANH MỤC</small><h3>Quản lý danh mục</h3><p>Thêm và quản lý nhóm sản phẩm hiển thị trên website.</p></div>
+</div>
+<div class="admin-page-body"><section class="admin-category-card" id="adminCategoryCard">
+<div class="admin-form-title">
+<div>
+<small>DANH MỤC</small>
+<h3>Quản lý danh mục</h3>
+<p class="admin-section-note">Thêm danh mục mới để dùng cho sản phẩm và bộ lọc ngoài trang chủ.</p>
+</div>
+</div>
+<label>Tên danh mục mới</label>
+<input id="adminCategoryName" placeholder="Ví dụ: Hoa chia buồn" type="text"/>
+<div class="admin-two-cols">
+<div>
+<label>Biểu tượng</label>
+<input id="adminCategoryIcon" maxlength="8" placeholder="Ví dụ: 🌸" type="text"/>
+</div>
+<div>
+<label>Mô tả ngắn</label>
+<input id="adminCategoryDesc" placeholder="Ví dụ: Trang trọng • Tinh tế" type="text"/>
+</div>
+</div>
+<button class="btn primary full" id="adminAddCategory" type="button">+ Thêm danh mục</button>
+<div class="admin-category-list" id="adminCategoryList"></div>
+</section></div>
+</section><section class="admin-page" data-admin-page="products" hidden="">
+<div class="admin-page-head">
+<div><small>SẢN PHẨM</small><h3>Quản lý sản phẩm</h3><p>Thêm, sửa, xóa và xem toàn bộ mẫu hoa đang có trong shop.</p></div>
+</div>
+<div class="admin-page-body"><div class="admin-product-workspace"><aside class="admin-form-card">
+<div class="admin-form-title">
+<div>
+<small>SẢN PHẨM</small>
+<h3 id="adminFormTitle">Thêm sản phẩm mới</h3>
+</div>
+<button class="admin-text-btn" id="adminClearForm">Làm mới</button>
+</div>
+<input id="adminProductId" type="hidden"/>
+<label>Mã hoa / ID duy nhất</label>
+<input id="adminFlowerId" readonly="" type="text" value="Tự động cấp khi lưu"/>
+<small class="admin-help">Mã dạng HCL-000001 được tạo từ ID Supabase và không đổi khi sửa sản phẩm.</small>
+<label>Tên sản phẩm</label>
+<input id="adminName" placeholder="Ví dụ: Bó hoa Nắng Dịu Dàng" type="text"/>
+<div class="admin-two-cols">
+<div>
+<label>Danh mục</label>
+<select id="adminCategory"></select>
+</div>
+<div>
+<label>Giá bán (VNĐ)</label>
+<input id="adminPrice" min="0" placeholder="350000" step="1000" type="number"/>
+</div>
+</div>
+<label>Mô tả ngắn</label>
+<textarea id="adminDesc" placeholder="Mô tả sản phẩm..." rows="3"></textarea>
+<label>Nhãn nổi bật</label>
+<input id="adminBadge" placeholder="Ví dụ: Bán chạy" type="text"/>
+<label>Hình ảnh sản phẩm</label>
+<input accept="image/*" id="adminImage" type="file"/>
+<div class="admin-image-preview" id="adminImagePreview">
+<span>Chưa chọn ảnh</span>
+</div>
+<small class="admin-help">Ảnh được tối ưu rồi tải lên Supabase Storage và hiển thị trên mọi thiết bị.</small>
+<button class="btn primary full" id="adminSaveProduct">Lưu sản phẩm</button>
+</aside><main class="admin-products-card">
 
-  <main>
-    <section class="banner-section" aria-label="Banner Hoa Cỏ Lau">
-      <img id="siteBanner" src="assets/banner-hoa-co-lau.webp" alt="Tiệm Hoa Cỏ Lau - Hoa tươi - Tráp cưới hỏi" />
-    </section>
-
-    <section class="hero-copy">
-      <div class="container hero-copy-grid">
-        <div>
-          <p class="eyebrow">Tiệm Hoa Cỏ Lau</p>
-          <h1>Trao hoa đẹp, gửi trọn tình cảm.</h1>
-          <p class="lead">Hoa tươi, hoa sinh nhật, hoa khai trương, hoa cưới và tráp cưới hỏi được thiết kế chỉn chu theo từng dịp.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#products">Xem mẫu hoa</a>
-            <a class="btn ghost" href="tel:0353724232" data-phone-link>☎ Gọi đặt hoa</a>
-          </div>
-        </div>
-        <div class="hero-note">
-          <div><span>01</span><p><strong>Thiết kế theo yêu cầu</strong><br />Phối màu, kiểu dáng và ngân sách linh hoạt.</p></div>
-          <div><span>02</span><p><strong>Hoa tươi chọn lọc</strong><br />Ưu tiên độ tươi và hình thức khi giao khách.</p></div>
-          <div><span>03</span><p><strong>Cưới hỏi trọn gói</strong><br />Hoa cưới, tráp cưới và trang trí theo concept.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="categories">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Chọn theo nhu cầu</p>
-            <h2>Danh mục nổi bật</h2>
-          </div>
-          <p>Chọn nhanh mẫu hoa phù hợp với dịp bạn đang cần.</p>
-        </div>
-        <div class="category-grid" id="categoryGrid"></div>
-      </div>
-    </section>
-
-    <section class="section products-section" id="products">
-      <div class="container">
-        <div class="section-head product-head">
-          <div>
-            <p class="eyebrow">Bộ sưu tập</p>
-            <h2>Mẫu hoa được yêu thích</h2>
-          </div>
-          <div class="product-tools">
-            <div class="search-box">
-              <span>⌕</span>
-              <input id="searchInput" type="search" placeholder="Tìm hoa..." />
-            </div>
-            <select id="sortSelect" aria-label="Sắp xếp">
-              <option value="featured">Nổi bật</option>
-              <option value="price-asc">Giá thấp → cao</option>
-              <option value="price-desc">Giá cao → thấp</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="filter-row" id="filterRow"></div>
-
-        <div class="product-grid" id="productGrid"></div>
-      </div>
-    </section>
-
-    <section class="wedding-section" id="wedding">
-      <div class="container wedding-grid">
-        <div class="wedding-art" id="weddingArt" aria-hidden="true">
-          <img class="wedding-service-image" id="serviceImage" alt="Hình dịch vụ cưới hỏi" hidden />
-          <div class="wedding-art-decor" id="weddingArtDecor">
-            <div class="ring ring-one"></div>
-            <div class="ring ring-two"></div>
-            <div class="wheat">🌾</div>
-          </div>
-        </div>
-        <div class="wedding-copy">
-          <p class="eyebrow">Dịch vụ cưới hỏi</p>
-          <h2>Hoa cưới & tráp cưới đồng bộ theo concept</h2>
-          <p>Từ hoa cầm tay cô dâu, hoa cài áo, hoa xe cưới đến tráp lễ: Hoa Cỏ Lau có thể phối đồng bộ màu sắc và phong cách cho ngày trọng đại.</p>
-          <ul class="check-list">
-            <li>✓ Tư vấn concept theo màu áo dài / váy cưới</li>
-            <li>✓ Điều chỉnh theo ngân sách</li>
-            <li>✓ Nhận thiết kế mẫu riêng theo yêu cầu</li>
-          </ul>
-          <a class="btn primary" href="tel:0353724232" data-phone-link>Tư vấn cưới hỏi</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section testimonials">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Khách hàng nói gì</p>
-            <h2>Một món quà đẹp bắt đầu từ sự chỉn chu</h2>
-          </div>
-        </div>
-        <div class="testimonial-grid">
-          <article><div class="stars">★★★★★</div><p>“Hoa phối màu rất xinh, gói sạch đẹp và lên hình sang. Mình đặt sinh nhật khá gấp nhưng shop hỗ trợ rất nhiệt tình.”</p><strong>Khách hàng sinh nhật</strong></article>
-          <article><div class="stars">★★★★★</div><p>“Tráp cưới phối đúng tông gia đình chọn. Tổng thể gọn gàng, đẹp mắt và đúng giờ.”</p><strong>Khách hàng cưới hỏi</strong></article>
-          <article><div class="stars">★★★★★</div><p>“Mẫu khai trương nhìn nổi bật, hoa tươi và tư vấn ngân sách rõ ràng.”</p><strong>Khách hàng doanh nghiệp</strong></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="contact-section" id="contact">
-      <div class="container contact-grid">
-        <div>
-          <p class="eyebrow light">Liên hệ Hoa Cỏ Lau</p>
-          <h2>Đặt hoa nhanh qua điện thoại</h2>
-          <p class="contact-desc">Gửi cho shop dịp cần hoa, ngân sách, màu yêu thích và thời gian nhận. Shop sẽ tư vấn mẫu phù hợp.</p>
-        </div>
-        <div class="contact-card">
-          <div><span>📍</span><p><small>Địa chỉ</small><strong>Giồng Tre, An Ngãi Trung, Vĩnh Long</strong></p></div>
-          <div><span>☎️</span><p><small>Hotline</small><a href="tel:0353724232" data-phone-link><span data-phone-text>0353 72 42 32</span></a></p></div>
-          <div id="contactZaloRow"><span class="social-badge zalo-badge">Z</span><p><small>Zalo</small><a href="#" data-zalo-link target="_blank" rel="noopener noreferrer"><span data-zalo-text>Nhắn Zalo</span></a></p></div>
-          <div id="contactFacebookRow"><span class="social-badge facebook-badge">f</span><p><small>Facebook</small><a href="#" data-facebook-link target="_blank" rel="noopener noreferrer"><span data-facebook-text>Mở Facebook</span></a></p></div>
-          <div id="contactMessengerRow"><span class="social-badge messenger-badge">M</span><p><small>Messenger</small><a href="#" data-messenger-link target="_blank" rel="noopener noreferrer"><span data-messenger-text>Nhắn Messenger</span></a></p></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer-grid">
-      <div>
-        <strong>Hoa Cỏ Lau</strong>
-        <p>Hoa tươi • Hoa cưới • Tráp cưới hỏi</p>
-      </div>
-      <div class="footer-links">
-        <a href="#products">Sản phẩm</a>
-        <a href="#wedding">Cưới hỏi</a>
-        <a href="#contact">Liên hệ</a>
-        <a href="#admin" data-admin-open>Quản trị</a>
-      </div>
-      <p>© 2026 Hoa Cỏ Lau. Website mẫu.</p>
-    </div>
-  </footer>
-
-  <button class="floating-admin" id="adminOpenBtn" type="button">⚙ Admin</button>
-  <div class="floating-contact-dock" aria-label="Liên hệ nhanh">
-    <a class="floating-contact floating-zalo" href="#" data-zalo-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Zalo">
-      <span class="floating-icon floating-icon-zalo" aria-hidden="true">Z</span>
-    </a>
-    <a class="floating-contact floating-facebook" href="#" data-facebook-link target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook">
-      <span class="floating-icon floating-icon-facebook" aria-hidden="true">f</span>
-    </a>
-    <a class="floating-contact floating-messenger" href="#" data-messenger-link target="_blank" rel="noopener noreferrer" aria-label="Nhắn Messenger">
-      <svg class="floating-icon-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 3C6.9 3 3 6.7 3 11.4c0 2.7 1.3 5.1 3.5 6.7V21l2.7-1.5c.9.2 1.8.3 2.8.3 5.1 0 9-3.7 9-8.4S17.1 3 12 3Zm1 11.1-2.3-2.5-4.5 2.5 4.9-5.2 2.3 2.5 4.4-2.5-4.8 5.2Z"/>
-      </svg>
-    </a>
-    <a class="floating-contact floating-call" href="tel:0353724232" data-phone-link aria-label="Gọi Hoa Cỏ Lau">
-      <span class="floating-icon floating-icon-call" aria-hidden="true">☎</span>
-    </a>
-  </div>
-
-  <div class="overlay" id="overlay"></div>
-  <aside class="cart-drawer" id="cartDrawer" aria-label="Giỏ hàng">
-    <div class="cart-head">
-      <div>
-        <small>Đơn hoa của bạn</small>
-        <h3>Giỏ hàng</h3>
-      </div>
-      <button id="cartClose" aria-label="Đóng">×</button>
-    </div>
-    <div class="cart-items" id="cartItems"></div>
-    <div class="cart-empty" id="cartEmpty">
-      <div>🌷</div>
-      <p>Giỏ hàng đang trống.</p>
-      <small>Chọn một mẫu hoa bạn thích nhé.</small>
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total"><span>Tạm tính</span><strong id="cartTotal">0₫</strong></div>
-      <a class="btn primary full" href="tel:0353724232" data-phone-link>Gọi shop để chốt đơn</a>
-      <small>Giá và mẫu hoa có thể thay đổi theo thời điểm. Shop sẽ xác nhận trước khi làm.</small>
-    </div>
-  </aside>
-
-  <div class="toast" id="toast">Đã thêm vào giỏ hàng</div>
-
-  <section class="admin-shell" id="adminShell" hidden>
-    <div class="admin-login" id="adminLogin">
-      <div class="admin-login-card">
-        <div class="admin-logo">HCL</div>
-        <p class="eyebrow">Khu vực quản trị</p>
-        <h2>Hoa Cỏ Lau Admin</h2>
-        <p>Đăng nhập tài khoản Admin Supabase để quản lý dữ liệu dùng chung trên máy tính và điện thoại.</p>
-        <label>Email Admin</label>
-        <input id="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" />
-        <label>Mật khẩu</label>
-        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu Supabase" />
-        <button class="btn primary full" id="adminLoginBtn">Đăng nhập</button>
-        <button class="admin-text-btn" id="adminExitFromLogin">← Về website</button>
-        <small class="admin-warning">Bản V7.8 dùng Supabase. Không cần START-WEB.bat và có thể chạy trực tiếp trên GitHub Pages.</small>
-      </div>
-    </div>
-
-    <div class="admin-app" id="adminApp" hidden>
-      <header class="admin-topbar">
-        <div>
-          <small>TIỆM HOA CỎ LAU</small>
-          <h2>Quản lý website & sản phẩm <span class="admin-version">V7.8</span></h2>
-        </div>
-        <div class="admin-top-actions">
-          <button class="admin-secondary" id="adminGoSettings">Cài đặt website</button>
-          <button class="admin-secondary" id="adminResetSamples">Khôi phục mẫu</button>
-          <button class="admin-secondary" id="adminLogout">Đăng xuất</button>
-          <button class="admin-secondary" id="adminExit">Xem website</button>
-        </div>
-      </header>
-
-      <div class="admin-notice-wrap" id="adminNoticeWrap" aria-live="polite" aria-atomic="true" hidden>
-        <div class="admin-notice" id="adminNotice" data-type="info">
-          <div class="admin-notice-icon" id="adminNoticeIcon" aria-hidden="true">i</div>
-          <div class="admin-notice-content">
-            <strong id="adminNoticeTitle">Thông báo</strong>
-            <p id="adminNoticeMessage"></p>
-            <div class="admin-notice-hint" id="adminNoticeHint" hidden></div>
-          </div>
-          <button class="admin-notice-close" id="adminNoticeClose" type="button" aria-label="Đóng thông báo">×</button>
-        </div>
-      </div>
-
-      <div class="admin-layout">
-        <div class="admin-side-stack">
-          <section class="admin-settings-card" id="adminSettingsCard">
-            <div class="admin-form-title">
-              <div>
-                <small>WEBSITE</small>
-                <h3>Thông tin liên hệ & Banner</h3>
-                <p class="admin-section-note">Sửa hotline, Zalo, Facebook, Messenger và banner tại đây.</p>
-                <div class="admin-sync-status" id="adminSyncStatus" data-state="local">Đang kiểm tra chế độ đồng bộ...</div>
-              </div>
-            </div>
-
-            <label>Số điện thoại / Hotline</label>
-            <input id="adminPhone" type="text" placeholder="0353 72 42 32" />
-
-            <label>Link Zalo</label>
-            <input id="adminZalo" type="text" placeholder="https://zalo.me/0353724232" />
-            <label>Tên hiển thị Zalo</label>
-            <input id="adminZaloName" type="text" placeholder="Ví dụ: Zalo Hoa Cỏ Lau" />
-
-            <label>Link Facebook</label>
-            <input id="adminFacebook" type="text" placeholder="https://facebook.com/ten-trang" />
-            <label>Tên hiển thị Facebook</label>
-            <input id="adminFacebookName" type="text" placeholder="Ví dụ: Facebook Hoa Cỏ Lau" />
-
-            <label>Link Messenger</label>
-            <input id="adminMessenger" type="text" placeholder="https://m.me/ten-trang" />
-            <label>Tên hiển thị Messenger</label>
-            <input id="adminMessengerName" type="text" placeholder="Ví dụ: Nhắn Hoa Cỏ Lau" />
-
-            <label>Banner trang chủ</label>
-            <input id="adminBanner" type="file" accept="image/*" />
-            <div class="admin-banner-preview" id="adminBannerPreview">
-              <span>Banner hiện tại</span>
-            </div>
-            <small class="admin-help">Ảnh banner sẽ được tối ưu rồi tải lên Supabase Storage. Nên dùng ảnh ngang tỉ lệ khoảng 2:1.</small>
-
-            <button class="btn primary full" id="adminSaveSettings">Lưu cài đặt website</button>
-            <button class="admin-outline-btn full" id="adminResetSettings">Khôi phục cài đặt mặc định</button>
-          </section>
-
-          <section class="admin-appearance-card" id="adminAppearanceCard">
-            <div class="admin-form-title">
-              <div>
-                <small>GIAO DIỆN</small>
-                <h3>Màu nền, Logo & Hình dịch vụ</h3>
-                <p class="admin-section-note">Tùy chỉnh giao diện chính của website. Dữ liệu được lưu trên Supabase và đồng bộ cho mọi thiết bị.</p>
-                <p class="admin-migration-note">Nếu bạn đã chạy migration V7.3 trước đó thì <strong>không cần chạy SQL thêm</strong>.</p>
-              </div>
-            </div>
-
-            <label>Màu nền website</label>
-            <div class="admin-color-row">
-              <input id="adminBackgroundColor" type="color" value="#fffdf8" aria-label="Chọn màu nền website" />
-              <input id="adminBackgroundColorText" type="text" value="#fffdf8" maxlength="7" placeholder="#fffdf8" />
-            </div>
-            <small class="admin-help">Nên chọn màu sáng/pastel để chữ và sản phẩm dễ nhìn.</small>
-
-            <label>Logo đầu trang</label>
-            <input id="adminLogo" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
-            <div class="admin-logo-preview" id="adminLogoPreview"><span>Chưa cài logo riêng — đang dùng HCL mặc định</span></div>
-            <button class="admin-outline-btn full" id="adminRemoveLogo" type="button">Xóa logo riêng</button>
-            <small class="admin-help">Khuyên dùng PNG/WebP nền trong suốt, ảnh vuông hoặc ngang. Website sẽ tự tối ưu ảnh.</small>
-
-            <label>Hình phần dịch vụ cưới hỏi</label>
-            <input id="adminServiceImage" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
-            <div class="admin-service-preview" id="adminServiceImagePreview"><span>Chưa cài ảnh dịch vụ riêng</span></div>
-            <button class="admin-outline-btn full" id="adminRemoveServiceImage" type="button">Xóa hình dịch vụ riêng</button>
-            <small class="admin-help">Nên dùng JPG/PNG/WebP. Ảnh HEIC từ iPhone cần đổi sang JPG/PNG trước khi tải. Khi có ảnh, phần minh họa vòng cưới mặc định sẽ được thay bằng ảnh này.</small>
-
-            <button class="admin-outline-btn full" id="adminTestStorage" type="button">Kiểm tra upload ảnh</button>
-            <small class="admin-help">V7.8 giữ nguyên preview của banner, logo và hình dịch vụ trong lúc chỉnh sửa; đồng bộ nền sẽ không còn tự đưa ảnh về mặc định. Nếu upload lên Supabase lỗi, bấm nút kiểm tra bên dưới.</small>
-
-            <button class="btn primary full" id="adminSaveAppearance" type="button">Lưu giao diện website</button>
-            <button class="admin-outline-btn full" id="adminResetAppearance" type="button">Khôi phục giao diện mặc định</button>
-          </section>
-
-          <section class="admin-category-card" id="adminCategoryCard">
-            <div class="admin-form-title">
-              <div>
-                <small>DANH MỤC</small>
-                <h3>Quản lý danh mục</h3>
-                <p class="admin-section-note">Thêm danh mục mới để dùng cho sản phẩm và bộ lọc ngoài trang chủ.</p>
-              </div>
-            </div>
-
-            <label>Tên danh mục mới</label>
-            <input id="adminCategoryName" type="text" placeholder="Ví dụ: Hoa chia buồn" />
-
-            <div class="admin-two-cols">
-              <div>
-                <label>Biểu tượng</label>
-                <input id="adminCategoryIcon" type="text" maxlength="8" placeholder="Ví dụ: 🌸" />
-              </div>
-              <div>
-                <label>Mô tả ngắn</label>
-                <input id="adminCategoryDesc" type="text" placeholder="Ví dụ: Trang trọng • Tinh tế" />
-              </div>
-            </div>
-
-            <button class="btn primary full" id="adminAddCategory" type="button">+ Thêm danh mục</button>
-            <div class="admin-category-list" id="adminCategoryList"></div>
-          </section>
-
-          <aside class="admin-form-card">
-          <div class="admin-form-title">
-            <div>
-              <small>SẢN PHẨM</small>
-              <h3 id="adminFormTitle">Thêm sản phẩm mới</h3>
-            </div>
-            <button class="admin-text-btn" id="adminClearForm">Làm mới</button>
-          </div>
-
-          <input type="hidden" id="adminProductId" />
-          <label>Mã hoa / ID duy nhất</label>
-          <input id="adminFlowerId" type="text" value="Tự động cấp khi lưu" readonly />
-          <small class="admin-help">Mã dạng HCL-000001 được tạo từ ID Supabase và không đổi khi sửa sản phẩm.</small>
-
-          <label>Tên sản phẩm</label>
-          <input id="adminName" type="text" placeholder="Ví dụ: Bó hoa Nắng Dịu Dàng" />
-
-          <div class="admin-two-cols">
-            <div>
-              <label>Danh mục</label>
-              <select id="adminCategory"></select>
-            </div>
-            <div>
-              <label>Giá bán (VNĐ)</label>
-              <input id="adminPrice" type="number" min="0" step="1000" placeholder="350000" />
-            </div>
-          </div>
-
-          <label>Mô tả ngắn</label>
-          <textarea id="adminDesc" rows="3" placeholder="Mô tả sản phẩm..."></textarea>
-
-          <label>Nhãn nổi bật</label>
-          <input id="adminBadge" type="text" placeholder="Ví dụ: Bán chạy" />
-
-          <label>Hình ảnh sản phẩm</label>
-          <input id="adminImage" type="file" accept="image/*" />
-          <div class="admin-image-preview" id="adminImagePreview">
-            <span>Chưa chọn ảnh</span>
-          </div>
-          <small class="admin-help">Ảnh được tối ưu rồi tải lên Supabase Storage và hiển thị trên mọi thiết bị.</small>
-
-          <button class="btn primary full" id="adminSaveProduct">Lưu sản phẩm</button>
-          </aside>
-        </div>
-
-        <main class="admin-products-card">
-          <section class="admin-data-tools" id="adminDataTools">
-            <div class="admin-form-title">
-              <div>
-                <small>DỮ LIỆU WEBSITE</small>
-                <h3>Xuất / nhập dữ liệu bằng Excel</h3>
-                <p class="admin-section-note">Xuất riêng danh sách mẫu hoa để chỉnh sửa/import, hoặc xuất bản sao toàn bộ dữ liệu hiện có trên website gồm cài đặt liên hệ, banner, danh mục và tất cả mẫu hoa.</p>
-              </div>
-            </div>
-            <div class="admin-transfer-actions">
-              <button class="admin-secondary" id="adminExportExcel" type="button">⬇ Xuất mẫu hoa Excel</button>
-              <button class="admin-secondary" id="adminExportAllDataExcel" type="button">📦 Xuất toàn bộ data</button>
-              <a class="admin-outline-btn" id="adminDownloadTemplate" href="mau-import-hoa-co-lau.xlsx" download>Tải file Excel mẫu</a>
-            </div>
-            <label>Import file Excel đã chỉnh sửa</label>
-            <input id="adminImportFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
-            <small class="admin-help">Chỉnh sheet <strong>MauHoa</strong>. Không thay đổi mã HCL của sản phẩm cũ. Muốn thêm hoa mới, thêm một dòng và để trống cột flower_id.</small>
-            <button class="btn primary full" id="adminImportBtn" type="button" disabled>Import Excel vào website</button>
-            <div class="admin-import-status" id="adminImportStatus">Chưa chọn file import.</div>
-          </section>
-
-          <div class="admin-products-head">
-            <div>
-              <small>DANH SÁCH</small>
-              <h3>Sản phẩm hiện có</h3>
-            </div>
-            <span id="adminProductCount">0 sản phẩm</span>
-          </div>
-          <div class="admin-product-list" id="adminProductList"></div>
-        </main>
-      </div>
-    </div>
-  </section>
-
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=7.8.0"></script>
+<div class="admin-products-head">
+<div>
+<small>DANH SÁCH</small>
+<h3>Sản phẩm hiện có</h3>
+</div>
+<span id="adminProductCount">0 sản phẩm</span>
+</div>
+<div class="admin-product-list" id="adminProductList"></div>
+</main></div></div>
+</section><section class="admin-page" data-admin-page="data" hidden="">
+<div class="admin-page-head">
+<div><small>DỮ LIỆU</small><h3>Import / Export dữ liệu</h3><p>Xuất Excel, sao lưu toàn bộ dữ liệu hoặc import thông tin sản phẩm trở lại website.</p></div>
+</div>
+<div class="admin-page-body"><section class="admin-data-tools" id="adminDataTools">
+<div class="admin-form-title">
+<div>
+<small>DỮ LIỆU WEBSITE</small>
+<h3>Xuất / nhập dữ liệu bằng Excel</h3>
+<p class="admin-section-note">Xuất riêng danh sách mẫu hoa để chỉnh sửa/import, hoặc xuất bản sao toàn bộ dữ liệu hiện có trên website gồm cài đặt liên hệ, banner, danh mục và tất cả mẫu hoa.</p>
+</div>
+</div>
+<div class="admin-transfer-actions">
+<button class="admin-secondary" id="adminExportExcel" type="button">⬇ Xuất mẫu hoa Excel</button>
+<button class="admin-secondary" id="adminExportAllDataExcel" type="button">📦 Xuất toàn bộ data</button>
+<a class="admin-outline-btn" download="" href="mau-import-hoa-co-lau.xlsx" id="adminDownloadTemplate">Tải file Excel mẫu</a>
+</div>
+<label>Import file Excel đã chỉnh sửa</label>
+<input accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" id="adminImportFile" type="file"/>
+<small class="admin-help">Chỉnh sheet <strong>MauHoa</strong>. Không thay đổi mã HCL của sản phẩm cũ. Muốn thêm hoa mới, thêm một dòng và để trống cột flower_id.</small>
+<button class="btn primary full" disabled="" id="adminImportBtn" type="button">Import Excel vào website</button>
+<div class="admin-import-status" id="adminImportStatus">Chưa chọn file import.</div>
+</section><section class="admin-maintenance-card">
+<div><strong>Dữ liệu mẫu</strong><p>Chỉ dùng khi cần khôi phục bộ sản phẩm mẫu ban đầu.</p></div>
+<button class="admin-outline-btn" id="adminResetSamples" type="button">Khôi phục sản phẩm mẫu</button>
+</section></div>
+</section></div>
+</div>
+</section>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js?v=7.9.0"></script>
 </body>
 </html>

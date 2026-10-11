@@ -747,3 +747,128 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 
 /* V7.6 - thông tin file ảnh trong Admin */
 .admin-file-meta{display:block;margin-top:8px;color:#5d7180;font-size:11px;line-height:1.4;word-break:break-all}
+
+/* V7.9 - Admin tách page + menu trên header */
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: block;
+  padding: 0;
+  background: #183651;
+  color: #fff;
+  box-shadow: 0 8px 28px rgba(0,0,0,.14);
+}
+.admin-topbar-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 28px 13px;
+}
+.admin-heading h2 { margin: 3px 0 0; color: #fff; font-size: 24px; }
+.admin-heading > small { color: #cfe2eb; letter-spacing: 2px; }
+.admin-header-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 28px 14px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.28) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.admin-nav-btn {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.08);
+  color: #eaf5fa;
+  border-radius: 999px;
+  padding: 10px 15px;
+  min-height: 40px;
+  font: 800 13px/1 "Segoe UI", Arial, sans-serif;
+  cursor: pointer;
+  transition: .18s ease;
+  white-space: nowrap;
+}
+.admin-nav-btn span { margin-right: 5px; }
+.admin-nav-btn:hover { background: rgba(255,255,255,.15); }
+.admin-nav-btn.is-active {
+  background: #fff;
+  border-color: #fff;
+  color: #183651;
+  box-shadow: 0 5px 14px rgba(0,0,0,.13);
+}
+.admin-pages { width: min(1250px, calc(100% - 32px)); margin: 24px auto 60px; }
+.admin-page { animation: adminPageIn .16s ease-out; }
+@keyframes adminPageIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.admin-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 16px;
+  padding: 0 2px;
+}
+.admin-page-head small { color: #657a87; letter-spacing: 2px; font-weight: 800; }
+.admin-page-head h3 { margin: 4px 0 4px; color: #183651; font-size: 25px; }
+.admin-page-head p { margin: 0; color: #6b7c86; line-height: 1.5; }
+.admin-page-narrow .admin-page-body { width: min(820px, 100%); }
+.admin-page-narrow .admin-settings-card,
+.admin-page-narrow .admin-appearance-card,
+.admin-page-narrow .admin-category-card { width: 100%; box-sizing: border-box; }
+.admin-product-workspace {
+  display: grid;
+  grid-template-columns: 380px minmax(0,1fr);
+  gap: 22px;
+  align-items: start;
+}
+.admin-product-workspace > .admin-form-card { position: sticky; top: 142px; }
+.admin-product-workspace > .admin-products-card { min-width: 0; }
+.admin-page[data-admin-page="data"] .admin-data-tools {
+  margin: 0;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(24,54,81,.08);
+}
+.admin-maintenance-card {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #dfe8ec;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 28px rgba(24,54,81,.06);
+}
+.admin-maintenance-card strong { color: #183651; }
+.admin-maintenance-card p { margin: 4px 0 0; color: #71828c; font-size: 13px; }
+.admin-maintenance-card .admin-outline-btn { margin-top: 0; white-space: nowrap; }
+.admin-notice-wrap { width: min(1250px, calc(100% - 32px)); margin: 18px auto 0; }
+
+@media (max-width: 900px) {
+  .admin-topbar-main { padding: 14px 16px 10px; align-items: flex-start; }
+  .admin-heading h2 { font-size: 20px; }
+  .admin-top-actions { width: auto; display: flex; grid-template-columns: none; }
+  .admin-top-actions .admin-secondary { width: auto; min-height: 38px; padding: 9px 11px; }
+  .admin-header-menu { padding: 0 14px 12px; gap: 7px; }
+  .admin-nav-btn { padding: 9px 12px; min-height: 38px; }
+  .admin-pages { width: calc(100% - 20px); margin: 14px auto 34px; }
+  .admin-product-workspace { grid-template-columns: 1fr; gap: 14px; }
+  .admin-product-workspace > .admin-form-card { position: static; }
+  .admin-page-head h3 { font-size: 21px; }
+}
+@media (max-width: 560px) {
+  .admin-topbar-main { gap: 10px; }
+  .admin-heading > small { font-size: 10px; }
+  .admin-heading h2 { font-size: 17px; }
+  .admin-top-actions { gap: 6px; }
+  .admin-top-actions .admin-secondary { font-size: 11px; padding: 8px 9px; }
+  .admin-header-menu { padding-bottom: 10px; }
+  .admin-nav-btn { font-size: 12px; }
+  .admin-page-head { margin-bottom: 11px; }
+  .admin-page-head p { font-size: 13px; }
+  .admin-maintenance-card { align-items: stretch; flex-direction: column; }
+  .admin-maintenance-card .admin-outline-btn { width: 100%; }
+}
