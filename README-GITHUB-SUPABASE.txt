@@ -35,3 +35,11 @@ V7.2 - XUẤT TOÀN BỘ DATA WEBSITE
 - Dữ liệu được lấy trực tiếp từ Supabase tại thời điểm bấm xuất.
 - Có phân trang khi đọc Supabase nên không bị giới hạn ở 1000 sản phẩm.
 - File toàn bộ data hiện dùng để backup/xem dữ liệu; Import hiện tại chỉ áp dụng cho sheet MauHoa.
+
+
+=== NANG CAP V7.3 ===
+1. Truoc khi dung 3 chuc nang giao dien moi, vao Supabase > SQL Editor.
+2. Mo file SUPABASE-MIGRATION-V7.3.sql va chay toan bo SQL 1 lan.
+3. Upload cac file V7.3 len root GitHub Pages, ghi de index.html/styles.css/script.js.
+4. Admin > GIAO DIEN: chon mau nen, logo, hinh dich vu > Luu giao dien website.
+5. Logo nen dung PNG/WebP trong suot. Hinh dich vu nen dung JPG/WebP ro net.

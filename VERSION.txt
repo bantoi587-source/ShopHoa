@@ -1,6 +1,6 @@
-Hoa Co Lau Website V7.2.0
-- Export all current website data to Excel .xlsx
-- Full export sheets: TongQuan, CaiDatWebsite, DanhMuc, MauHoa, GhiChu
-- Existing product Excel import/export retained
-- Unique flower ID HCL-xxxxxx
-- Supabase sync retained
+Hoa Co Lau V7.3
+- Admin chinh mau nen website
+- Admin upload/xoa logo dau trang
+- Admin upload/xoa hinh phan dich vu cuoi hoi
+- Dong bo Supabase moi thiet bi
+- Export toan bo data Excel co them cac truong giao dien

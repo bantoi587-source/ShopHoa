@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Hoa Cỏ Lau - Hoa tươi, hoa cưới, tráp cưới hỏi tại Giồng Tre, An Ngãi Trung, Vĩnh Long." />
   <title>Hoa Cỏ Lau | Hoa tươi - Tráp cưới hỏi</title>
-  <link rel="stylesheet" href="styles.css?v=7.2.0" />
+  <link rel="stylesheet" href="styles.css?v=7.3.0" />
 </head>
 <body>
   <div class="topbar">
@@ -18,7 +18,8 @@
   <header class="header" id="top">
     <div class="container nav-wrap">
       <a class="brand" href="#top" aria-label="Hoa Cỏ Lau">
-        <span class="brand-mark">HCL</span>
+        <span class="brand-mark" id="headerBrandMark">HCL</span>
+        <img class="brand-logo" id="headerLogo" alt="Logo Hoa Cỏ Lau" hidden />
         <span>
           <strong>Hoa Cỏ Lau</strong>
           <small>Hoa tươi • Tráp cưới hỏi</small>
@@ -107,10 +108,13 @@
 
     <section class="wedding-section" id="wedding">
       <div class="container wedding-grid">
-        <div class="wedding-art" aria-hidden="true">
-          <div class="ring ring-one"></div>
-          <div class="ring ring-two"></div>
-          <div class="wheat">🌾</div>
+        <div class="wedding-art" id="weddingArt" aria-hidden="true">
+          <img class="wedding-service-image" id="serviceImage" alt="Hình dịch vụ cưới hỏi" hidden />
+          <div class="wedding-art-decor" id="weddingArtDecor">
+            <div class="ring ring-one"></div>
+            <div class="ring ring-two"></div>
+            <div class="wheat">🌾</div>
+          </div>
         </div>
         <div class="wedding-copy">
           <p class="eyebrow">Dịch vụ cưới hỏi</p>
@@ -231,7 +235,7 @@
         <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Nhập mật khẩu Supabase" />
         <button class="btn primary full" id="adminLoginBtn">Đăng nhập</button>
         <button class="admin-text-btn" id="adminExitFromLogin">← Về website</button>
-        <small class="admin-warning">Bản V7.2 dùng Supabase. Không cần START-WEB.bat và có thể chạy trực tiếp trên GitHub Pages.</small>
+        <small class="admin-warning">Bản V7.3 dùng Supabase. Không cần START-WEB.bat và có thể chạy trực tiếp trên GitHub Pages.</small>
       </div>
     </div>
 
@@ -239,7 +243,7 @@
       <header class="admin-topbar">
         <div>
           <small>TIỆM HOA CỎ LAU</small>
-          <h2>Quản lý website & sản phẩm <span class="admin-version">V7.2</span></h2>
+          <h2>Quản lý website & sản phẩm <span class="admin-version">V7.3</span></h2>
         </div>
         <div class="admin-top-actions">
           <button class="admin-secondary" id="adminGoSettings">Cài đặt website</button>
@@ -288,6 +292,39 @@
 
             <button class="btn primary full" id="adminSaveSettings">Lưu cài đặt website</button>
             <button class="admin-outline-btn full" id="adminResetSettings">Khôi phục cài đặt mặc định</button>
+          </section>
+
+          <section class="admin-appearance-card" id="adminAppearanceCard">
+            <div class="admin-form-title">
+              <div>
+                <small>GIAO DIỆN</small>
+                <h3>Màu nền, Logo & Hình dịch vụ</h3>
+                <p class="admin-section-note">Tùy chỉnh giao diện chính của website. Dữ liệu được lưu trên Supabase và đồng bộ cho mọi thiết bị.</p>
+                <p class="admin-migration-note">Lần đầu dùng V7.3: chạy file <strong>SUPABASE-MIGRATION-V7.3.sql</strong> trong Supabase SQL Editor một lần.</p>
+              </div>
+            </div>
+
+            <label>Màu nền website</label>
+            <div class="admin-color-row">
+              <input id="adminBackgroundColor" type="color" value="#fffdf8" aria-label="Chọn màu nền website" />
+              <input id="adminBackgroundColorText" type="text" value="#fffdf8" maxlength="7" placeholder="#fffdf8" />
+            </div>
+            <small class="admin-help">Nên chọn màu sáng/pastel để chữ và sản phẩm dễ nhìn.</small>
+
+            <label>Logo đầu trang</label>
+            <input id="adminLogo" type="file" accept="image/*" />
+            <div class="admin-logo-preview" id="adminLogoPreview"><span>Chưa cài logo riêng — đang dùng HCL mặc định</span></div>
+            <button class="admin-outline-btn full" id="adminRemoveLogo" type="button">Xóa logo riêng</button>
+            <small class="admin-help">Khuyên dùng PNG/WebP nền trong suốt, ảnh vuông hoặc ngang. Website sẽ tự tối ưu ảnh.</small>
+
+            <label>Hình phần dịch vụ cưới hỏi</label>
+            <input id="adminServiceImage" type="file" accept="image/*" />
+            <div class="admin-service-preview" id="adminServiceImagePreview"><span>Chưa cài ảnh dịch vụ riêng</span></div>
+            <button class="admin-outline-btn full" id="adminRemoveServiceImage" type="button">Xóa hình dịch vụ riêng</button>
+            <small class="admin-help">Nên dùng ảnh ngang hoặc ảnh vuông rõ nét. Khi có ảnh, phần minh họa vòng cưới mặc định sẽ được thay bằng ảnh này.</small>
+
+            <button class="btn primary full" id="adminSaveAppearance" type="button">Lưu giao diện website</button>
+            <button class="admin-outline-btn full" id="adminResetAppearance" type="button">Khôi phục giao diện mặc định</button>
           </section>
 
           <section class="admin-category-card" id="adminCategoryCard">
@@ -398,6 +435,6 @@
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=7.2.0"></script>
+  <script src="script.js?v=7.3.0"></script>
 </body>
 </html>
