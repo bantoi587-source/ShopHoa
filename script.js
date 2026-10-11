@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V7.7 - appearance draft lock + reliable local image preview
+// Hoa Cỏ Lau V7.8 - banner/logo/service draft lock + reliable local image preview
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -89,6 +89,14 @@ let pendingProductImageFile = null;
 
 function hasAppearanceDraft() {
   return appearanceDraftActive || Boolean(pendingLogoFile) || Boolean(pendingServiceImageFile) || removeLogoRequested || removeServiceImageRequested;
+}
+
+function hasBannerDraft() {
+  return Boolean(pendingBannerFile);
+}
+
+function hasVisualDraft() {
+  return hasBannerDraft() || hasAppearanceDraft();
 }
 
 const money = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
@@ -275,6 +283,13 @@ function versionedAssetUrl(url = "", version = "") {
   if (!raw || raw.startsWith("blob:") || raw.startsWith("data:")) return raw;
   const v = encodeURIComponent(String(version || "1"));
   return `${raw}${raw.includes("?") ? "&" : "?"}hclv=${v}`;
+}
+
+function applyBannerToPage(url = "", version = "") {
+  const banner = document.getElementById("siteBanner");
+  if (!banner) return;
+  const raw = String(url || "").trim() || defaultSiteSettings.banner;
+  banner.src = versionedAssetUrl(raw, version);
 }
 
 function applyBackgroundTheme(color) {
@@ -556,8 +571,11 @@ function applySiteSettings() {
   });
   document.querySelectorAll("[data-phone-text]").forEach(el => { el.textContent = phoneText; });
 
-  const banner = document.getElementById("siteBanner");
-  if (banner) banner.src = siteSettings.banner || defaultSiteSettings.banner;
+  // Khi Admin đang chọn banner nhưng chưa lưu, không cho polling/realtime
+  // ghi đè banner preview bằng dữ liệu cũ từ Supabase.
+  if (!(adminUnlocked && hasBannerDraft())) {
+    applyBannerToPage(siteSettings.banner || defaultSiteSettings.banner, siteSettings.updatedAt);
+  }
 
   // Khi Admin đang chọn ảnh/màu nhưng chưa lưu, không cho polling/realtime
   // ghi đè phần xem trước bằng dữ liệu cũ từ Supabase.
@@ -832,13 +850,17 @@ async function openAdmin() {
 }
 
 function closeAdmin() {
-  // Nếu đóng Admin khi chưa lưu giao diện, bỏ bản nháp và trả trang về dữ liệu Supabase đã lưu.
-  if (hasAppearanceDraft()) {
+  // Nếu đóng Admin khi chưa lưu hình ảnh/giao diện, bỏ bản nháp và trả trang về dữ liệu Supabase đã lưu.
+  if (hasVisualDraft()) {
     appearanceDraftActive = false;
+    pendingBannerFile = null;
     pendingLogoFile = null;
     pendingServiceImageFile = null;
     removeLogoRequested = false;
     removeServiceImageRequested = false;
+    if (adminBanner) adminBanner.value = "";
+    if (adminLogo) adminLogo.value = "";
+    if (adminServiceImage) adminServiceImage.value = "";
     applySiteSettings();
   }
   adminShell.hidden = true;
@@ -932,10 +954,14 @@ function populateAdminSettings() {
   adminFacebookName.value = siteSettings.facebookName || defaultSiteSettings.facebookName;
   adminMessenger.value = siteSettings.messenger || "";
   adminMessengerName.value = siteSettings.messengerName || defaultSiteSettings.messengerName;
-  adminBanner.value = "";
-  pendingBannerFile = null;
-  const src = siteSettings.banner || defaultSiteSettings.banner;
-  adminBannerPreview.innerHTML = `<img src="${escapeHtml(src)}" alt="Banner hiện tại">`;
+
+  // Banner cũng dùng cơ chế bản nháp. Polling/realtime không được xóa file vừa chọn.
+  if (!hasBannerDraft()) {
+    if (adminBanner) adminBanner.value = "";
+    pendingBannerFile = null;
+    const src = siteSettings.banner || defaultSiteSettings.banner;
+    adminBannerPreview.innerHTML = `<img src="${escapeHtml(versionedAssetUrl(src, siteSettings.updatedAt))}" alt="Banner hiện tại">`;
+  }
 
   // Chỉ nạp lại phần giao diện khi không có bản nháp. Nếu người dùng vừa chọn file,
   // polling/realtime không được xóa file input và preview trước khi bấm Lưu.
@@ -967,9 +993,18 @@ function populateAdminSettings() {
 adminBanner?.addEventListener("change", () => {
   const file = adminBanner.files?.[0];
   if (!file) return;
-  pendingBannerFile = file;
-  const url = URL.createObjectURL(file);
-  adminBannerPreview.innerHTML = `<img src="${url}" alt="Xem trước banner">`;
+  try {
+    validateAdminImageFile(file, "Banner");
+    pendingBannerFile = file;
+    showLocalImagePreview(file, adminBannerPreview, "Banner", url => applyBannerToPage(url, "preview"));
+    updateSyncStatus("Đã chọn banner — bản xem trước được khóa đến khi Lưu hoặc đóng Admin", "local");
+    showAdminNotice("info", "Đã chọn banner", `${file.name} • ${formatBytes(file.size)}`, "Preview banner sẽ không bị đồng bộ nền ghi đè. Bấm Lưu cài đặt website để tải ảnh lên Supabase.", { timeout: 6000 });
+  } catch (error) {
+    pendingBannerFile = null;
+    adminBanner.value = "";
+    applyBannerToPage(siteSettings.banner || defaultSiteSettings.banner, siteSettings.updatedAt);
+    showAdminError(error, "Không thể chọn banner");
+  }
 });
 
 adminBackgroundColor?.addEventListener("input", () => {
@@ -1386,6 +1421,8 @@ document.getElementById("adminSaveSettings")?.addEventListener("click", async ()
 
     siteSettings = mapSettingsRow(data);
     lastSettingsUpdatedAt = data.updated_at || lastSettingsUpdatedAt;
+    pendingBannerFile = null;
+    if (adminBanner) adminBanner.value = "";
     applySiteSettings();
     populateAdminSettings();
     updateSyncStatus("Đã lưu Supabase — thiết bị khác sẽ tự cập nhật trong vài giây", "online");
@@ -1418,6 +1455,8 @@ document.getElementById("adminResetSettings")?.addEventListener("click", async (
     const { data, error } = await supabaseClient.from("site_settings").update(payload).eq("id", 1).select().maybeSingle();
     if (error) throw error;
     siteSettings = mapSettingsRow(data);
+    pendingBannerFile = null;
+    if (adminBanner) adminBanner.value = "";
     applySiteSettings();
     populateAdminSettings();
     showAdminSuccess("Khôi phục cài đặt thành công", "Hotline, liên hệ và banner đã được đưa về mặc định.");
@@ -1798,7 +1837,7 @@ async function exportAllWebsiteDataExcel() {
     const currentSettings = settingsExport.find(row => Number(row.id) === 1) || settingsExport[0] || {};
     const overviewRows = [
       ["HẠNG MỤC", "GIÁ TRỊ"],
-      ["Phiên bản website", "V7.7"],
+      ["Phiên bản website", "V7.8"],
       ["Thời điểm xuất", now.toLocaleString("vi-VN")],
       ["Nguồn dữ liệu", "Supabase - dữ liệu hiện tại trên website"],
       ["Tổng mẫu hoa", productRows.length],
