@@ -1,4 +1,4 @@
-// Hoa Cỏ Lau V7.6 - robust image upload + Supabase Storage diagnostics
+// Hoa Cỏ Lau V7.7 - appearance draft lock + reliable local image preview
 const SUPABASE_URL = "https://plgpmtikfdmbeieeefkw.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_OS3B15GlV2eN_KAD_AgMuA_Gz5G1r3Q";
 const STORAGE_BUCKET = "shop-images";
@@ -84,7 +84,12 @@ let pendingLogoFile = null;
 let pendingServiceImageFile = null;
 let removeLogoRequested = false;
 let removeServiceImageRequested = false;
+let appearanceDraftActive = false;
 let pendingProductImageFile = null;
+
+function hasAppearanceDraft() {
+  return appearanceDraftActive || Boolean(pendingLogoFile) || Boolean(pendingServiceImageFile) || removeLogoRequested || removeServiceImageRequested;
+}
 
 const money = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
 
@@ -554,10 +559,14 @@ function applySiteSettings() {
   const banner = document.getElementById("siteBanner");
   if (banner) banner.src = siteSettings.banner || defaultSiteSettings.banner;
 
-  const bg = normalizeHexColor(siteSettings.backgroundColor) || defaultSiteSettings.backgroundColor;
-  applyBackgroundTheme(bg);
-  applyLogoToHeader(siteSettings.logo, siteSettings.updatedAt);
-  applyServiceImageToPage(siteSettings.serviceImage, siteSettings.updatedAt);
+  // Khi Admin đang chọn ảnh/màu nhưng chưa lưu, không cho polling/realtime
+  // ghi đè phần xem trước bằng dữ liệu cũ từ Supabase.
+  if (!(adminUnlocked && hasAppearanceDraft())) {
+    const bg = normalizeHexColor(siteSettings.backgroundColor) || defaultSiteSettings.backgroundColor;
+    applyBackgroundTheme(bg);
+    applyLogoToHeader(siteSettings.logo, siteSettings.updatedAt);
+    applyServiceImageToPage(siteSettings.serviceImage, siteSettings.updatedAt);
+  }
 
   const configs = [
     { selector: "[data-zalo-link]", textSelector: "[data-zalo-text]", row: "contactZaloRow", url: effectiveZaloUrl(), label: "Zalo", display: siteSettings.zaloName || defaultSiteSettings.zaloName },
@@ -823,6 +832,15 @@ async function openAdmin() {
 }
 
 function closeAdmin() {
+  // Nếu đóng Admin khi chưa lưu giao diện, bỏ bản nháp và trả trang về dữ liệu Supabase đã lưu.
+  if (hasAppearanceDraft()) {
+    appearanceDraftActive = false;
+    pendingLogoFile = null;
+    pendingServiceImageFile = null;
+    removeLogoRequested = false;
+    removeServiceImageRequested = false;
+    applySiteSettings();
+  }
   adminShell.hidden = true;
   document.body.style.overflow = "";
   if (location.hash === "#admin") history.replaceState(null, "", location.pathname + location.search);
@@ -919,26 +937,30 @@ function populateAdminSettings() {
   const src = siteSettings.banner || defaultSiteSettings.banner;
   adminBannerPreview.innerHTML = `<img src="${escapeHtml(src)}" alt="Banner hiện tại">`;
 
-  const bg = normalizeHexColor(siteSettings.backgroundColor) || defaultSiteSettings.backgroundColor;
-  if (adminBackgroundColor) adminBackgroundColor.value = bg;
-  if (adminBackgroundColorText) adminBackgroundColorText.value = bg;
+  // Chỉ nạp lại phần giao diện khi không có bản nháp. Nếu người dùng vừa chọn file,
+  // polling/realtime không được xóa file input và preview trước khi bấm Lưu.
+  if (!hasAppearanceDraft()) {
+    const bg = normalizeHexColor(siteSettings.backgroundColor) || defaultSiteSettings.backgroundColor;
+    if (adminBackgroundColor) adminBackgroundColor.value = bg;
+    if (adminBackgroundColorText) adminBackgroundColorText.value = bg;
 
-  if (adminLogo) adminLogo.value = "";
-  pendingLogoFile = null;
-  removeLogoRequested = false;
-  if (adminLogoPreview) {
-    adminLogoPreview.innerHTML = siteSettings.logo
-      ? `<img src="${escapeHtml(siteSettings.logo)}" alt="Logo hiện tại">`
-      : `<span>Chưa cài logo riêng — đang dùng HCL mặc định</span>`;
-  }
+    if (adminLogo) adminLogo.value = "";
+    pendingLogoFile = null;
+    removeLogoRequested = false;
+    if (adminLogoPreview) {
+      adminLogoPreview.innerHTML = siteSettings.logo
+        ? `<img src="${escapeHtml(siteSettings.logo)}" alt="Logo hiện tại">`
+        : `<span>Chưa cài logo riêng — đang dùng HCL mặc định</span>`;
+    }
 
-  if (adminServiceImage) adminServiceImage.value = "";
-  pendingServiceImageFile = null;
-  removeServiceImageRequested = false;
-  if (adminServiceImagePreview) {
-    adminServiceImagePreview.innerHTML = siteSettings.serviceImage
-      ? `<img src="${escapeHtml(siteSettings.serviceImage)}" alt="Hình dịch vụ hiện tại">`
-      : `<span>Chưa cài ảnh dịch vụ riêng — đang dùng minh họa mặc định</span>`;
+    if (adminServiceImage) adminServiceImage.value = "";
+    pendingServiceImageFile = null;
+    removeServiceImageRequested = false;
+    if (adminServiceImagePreview) {
+      adminServiceImagePreview.innerHTML = siteSettings.serviceImage
+        ? `<img src="${escapeHtml(siteSettings.serviceImage)}" alt="Hình dịch vụ hiện tại">`
+        : `<span>Chưa cài ảnh dịch vụ riêng — đang dùng minh họa mặc định</span>`;
+    }
   }
 }
 
@@ -951,11 +973,13 @@ adminBanner?.addEventListener("change", () => {
 });
 
 adminBackgroundColor?.addEventListener("input", () => {
+  appearanceDraftActive = true;
   if (adminBackgroundColorText) adminBackgroundColorText.value = adminBackgroundColor.value;
   applyBackgroundTheme(adminBackgroundColor.value);
   updateSyncStatus("Đang xem trước màu nền — bấm Lưu giao diện để đồng bộ", "local");
 });
 adminBackgroundColorText?.addEventListener("input", () => {
+  appearanceDraftActive = true;
   const color = normalizeHexColor(adminBackgroundColorText.value);
   if (color) {
     if (adminBackgroundColor) adminBackgroundColor.value = color;
@@ -990,18 +1014,45 @@ function validateAdminImageFile(file, purpose = "Ảnh") {
   return kind;
 }
 
+function showLocalImagePreview(file, previewEl, purpose, onReady) {
+  const url = URL.createObjectURL(file);
+  if (!previewEl) {
+    onReady?.(url);
+    return;
+  }
+
+  previewEl.innerHTML = "";
+  const img = document.createElement("img");
+  img.alt = `Xem trước ${purpose.toLowerCase()}`;
+  const meta = document.createElement("small");
+  meta.className = "admin-file-meta";
+  meta.textContent = `${file.name} • ${formatBytes(file.size)} • đang đọc ảnh...`;
+  previewEl.append(img, meta);
+
+  img.onload = () => {
+    meta.textContent = `${file.name} • ${formatBytes(file.size)} • xem trước OK`;
+    onReady?.(url);
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    previewEl.innerHTML = `<span>Không đọc được ảnh đã chọn</span>`;
+    const error = new Error(`${purpose}: trình duyệt không đọc được nội dung file ${file.name}. Hãy thử JPG, PNG hoặc WebP khác.`);
+    showAdminError(error, `Không thể xem trước ${purpose.toLowerCase()}`);
+  };
+  img.src = url;
+}
+
 adminLogo?.addEventListener("change", () => {
   const file = adminLogo.files?.[0];
   if (!file) return;
   try {
     validateAdminImageFile(file, "Logo");
+    appearanceDraftActive = true;
     pendingLogoFile = file;
     removeLogoRequested = false;
-    const url = URL.createObjectURL(file);
-    if (adminLogoPreview) adminLogoPreview.innerHTML = `<img src="${url}" alt="Xem trước logo"><small class="admin-file-meta">${escapeHtml(file.name)} • ${formatBytes(file.size)}</small>`;
-    applyLogoToHeader(url, "preview");
-    updateSyncStatus("Đã chọn logo — bấm Lưu giao diện để tải lên Supabase", "local");
-    showAdminNotice("info", "Đã chọn logo", `${file.name} • ${formatBytes(file.size)}`, "Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 4000 });
+    showLocalImagePreview(file, adminLogoPreview, "Logo", url => applyLogoToHeader(url, "preview"));
+    updateSyncStatus("Đã chọn logo — bản xem trước được khóa đến khi Lưu hoặc đóng Admin", "local");
+    showAdminNotice("info", "Đã chọn logo", `${file.name} • ${formatBytes(file.size)}`, "Preview sẽ không bị đồng bộ nền ghi đè. Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 6000 });
   } catch (error) {
     pendingLogoFile = null;
     adminLogo.value = "";
@@ -1014,13 +1065,12 @@ adminServiceImage?.addEventListener("change", () => {
   if (!file) return;
   try {
     validateAdminImageFile(file, "Hình dịch vụ");
+    appearanceDraftActive = true;
     pendingServiceImageFile = file;
     removeServiceImageRequested = false;
-    const url = URL.createObjectURL(file);
-    if (adminServiceImagePreview) adminServiceImagePreview.innerHTML = `<img src="${url}" alt="Xem trước hình dịch vụ"><small class="admin-file-meta">${escapeHtml(file.name)} • ${formatBytes(file.size)}</small>`;
-    applyServiceImageToPage(url, "preview");
-    updateSyncStatus("Đã chọn hình dịch vụ — bấm Lưu giao diện để tải lên Supabase", "local");
-    showAdminNotice("info", "Đã chọn hình dịch vụ", `${file.name} • ${formatBytes(file.size)}`, "Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 4000 });
+    showLocalImagePreview(file, adminServiceImagePreview, "Hình dịch vụ", url => applyServiceImageToPage(url, "preview"));
+    updateSyncStatus("Đã chọn hình dịch vụ — bản xem trước được khóa đến khi Lưu hoặc đóng Admin", "local");
+    showAdminNotice("info", "Đã chọn hình dịch vụ", `${file.name} • ${formatBytes(file.size)}`, "Preview sẽ không bị đồng bộ nền ghi đè. Bấm Lưu giao diện website để tải ảnh lên Supabase.", { timeout: 6000 });
   } catch (error) {
     pendingServiceImageFile = null;
     adminServiceImage.value = "";
@@ -1029,6 +1079,7 @@ adminServiceImage?.addEventListener("change", () => {
 });
 
 document.getElementById("adminRemoveLogo")?.addEventListener("click", () => {
+  appearanceDraftActive = true;
   pendingLogoFile = null;
   removeLogoRequested = true;
   if (adminLogo) adminLogo.value = "";
@@ -1038,6 +1089,7 @@ document.getElementById("adminRemoveLogo")?.addEventListener("click", () => {
 });
 
 document.getElementById("adminRemoveServiceImage")?.addEventListener("click", () => {
+  appearanceDraftActive = true;
   pendingServiceImageFile = null;
   removeServiceImageRequested = true;
   if (adminServiceImage) adminServiceImage.value = "";
@@ -1244,6 +1296,7 @@ document.getElementById("adminSaveAppearance")?.addEventListener("click", async 
 
     siteSettings = mapSettingsRow(saved);
     lastSettingsUpdatedAt = saved.updated_at || lastSettingsUpdatedAt;
+    appearanceDraftActive = false;
     pendingLogoFile = null;
     pendingServiceImageFile = null;
     removeLogoRequested = false;
@@ -1257,7 +1310,8 @@ document.getElementById("adminSaveAppearance")?.addEventListener("click", async 
     showToast("Đã áp dụng màu nền, logo và hình dịch vụ");
   } catch (error) {
     console.error(error);
-    applySiteSettings(); // hoàn tác phần xem trước nếu lưu thất bại
+    // Giữ nguyên bản xem trước để người dùng có thể đọc lỗi và thử Lưu lại.
+    // Đóng Admin nếu muốn hủy bản nháp và quay về dữ liệu đã lưu.
     const msg = String(error?.message || error || "");
     if (/background_color|logo_url|service_image_url|column/i.test(msg)) {
       showAdminError(error, "Lưu giao diện thất bại");
@@ -1744,7 +1798,7 @@ async function exportAllWebsiteDataExcel() {
     const currentSettings = settingsExport.find(row => Number(row.id) === 1) || settingsExport[0] || {};
     const overviewRows = [
       ["HẠNG MỤC", "GIÁ TRỊ"],
-      ["Phiên bản website", "V7.6"],
+      ["Phiên bản website", "V7.7"],
       ["Thời điểm xuất", now.toLocaleString("vi-VN")],
       ["Nguồn dữ liệu", "Supabase - dữ liệu hiện tại trên website"],
       ["Tổng mẫu hoa", productRows.length],
